@@ -2,52 +2,33 @@
 
 @layer base {
   :root {
-    --background: #0E1116;
-    --surface: #171B22;
-    --border: #232936;
-    --green-accent: #22C55E;
-    color-scheme: dark;
+    --bg-main: #F5F5F0;
+    --card-white: #FFFFFF;
+    --surface-soft-green: #EFF4EC;
+    --primary-green: #426039;
+    --text-primary: #1F2420;
+    --text-secondary: #5E645C;
+    --border-color: #E4E8E1;
+    --accent-light-green: #EAF1E5;
+    color-scheme: light;
   }
 
   body {
-    background-color: #0E1116;
-    color: #F1F5F9;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #F5F5F0;
+    color: #1F2420;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
   }
 }
 
-/* Background subtle ambient glows */
-.bg-agri-dark {
-  background-color: #0E1116;
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.08) 0%, transparent 60%),
-    radial-gradient(circle at 10% 40%, rgba(34, 197, 94, 0.04) 0%, transparent 40%),
-    radial-gradient(circle at 90% 70%, rgba(34, 197, 94, 0.05) 0%, transparent 45%);
-}
-
-/* Button & Card glow animations */
-.glow-green {
-  box-shadow: 0 0 25px rgba(34, 197, 94, 0.35);
-}
-
-.glow-green:hover {
-  box-shadow: 0 0 40px rgba(34, 197, 94, 0.6);
-}
-
-.glow-card {
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-}
-
-.glow-card:hover {
-  box-shadow: 0 15px 35px -10px rgba(34, 197, 94, 0.15);
-}
-
+/* Subtle scanning line animation for AI analysis modal */
 @keyframes scanline {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(300%); }
 }
 
 .animate-scan {
-  animation: scanline 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: scanline 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }

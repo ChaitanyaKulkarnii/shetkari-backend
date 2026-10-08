@@ -77,7 +77,7 @@ describe('Landing Page Hero', () => {
     renderWithProviders(<Home />);
     const ctaButtons = screen.getAllByRole('button', { name: /Analyze Your Crop/i });
     expect(ctaButtons.length).toBeGreaterThan(0);
-    expect(screen.getByText(/Get smart, personalized crop insights powered by AI/i)).toBeInTheDocument();
+    expect(screen.getByText(/Understand your crop better with AI-powered insights/i)).toBeInTheDocument();
   });
 });
 

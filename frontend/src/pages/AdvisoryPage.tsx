@@ -90,21 +90,21 @@ export default function AdvisoryPage() {
   const res = createAdvisory.data;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-500">
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 text-[#1F2420]">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Leaf className="w-6 h-6 text-[#22C55E]" /> Sangli Soybean Crop Advisory
+          <h1 className="text-2xl font-bold text-[#1F2420] flex items-center gap-2">
+            <Leaf className="w-5 h-5 text-[#426039]" /> Sangli Soybean Crop Advisory
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Detailed agronomic predictions, harvest windows, yield estimates, and mandi storage timing.
+          <p className="text-xs sm:text-sm text-[#5E645C] mt-0.5">
+            Calibrated harvest predictions, yield forecasts, and mandi storage timing for Sangli farmers.
           </p>
         </div>
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-sm text-[#22C55E] hover:text-[#4ADE80] font-medium"
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-[#426039] hover:underline font-semibold"
         >
-          Back to AI Crop Analyzer <ArrowRight className="w-4 h-4" />
+          Back to Analyze Your Crop <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
 
@@ -113,7 +113,7 @@ export default function AdvisoryPage() {
         <div className="w-full lg:w-1/3 xl:w-1/4 shrink-0 space-y-4">
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 bg-[#171B22] p-5 rounded-xl border border-[#232936] text-sm shadow-xl"
+            className="space-y-4 bg-[#FFFFFF] p-5 rounded-[16px] border border-[#E4E8E1] text-sm shadow-xs"
           >
             {createAdvisory.isError && (createAdvisory.error as any).status !== 422 && (
               <Alert variant="destructive" className="p-3">
@@ -123,12 +123,12 @@ export default function AdvisoryPage() {
             )}
 
             <div className="flex items-center gap-2">
-              <label className="font-semibold text-slate-300 w-24 shrink-0">Name</label>
+              <label className="font-semibold text-[#1F2420] w-24 shrink-0 text-xs">Name</label>
               <input
                 type="text"
                 placeholder="Farmer name"
                 className={cn(
-                  "flex-1 h-9 rounded-lg bg-[#0E1116] border border-[#232936] text-white px-3 focus:border-[#22C55E] focus:ring-1 focus:ring-[#22C55E] outline-none text-sm",
+                  "flex-1 h-8.5 rounded-md bg-[#FFFFFF] border border-[#E4E8E1] text-[#1F2420] px-2.5 focus:border-[#426039] focus:ring-1 focus:ring-[#426039] outline-none text-xs",
                   form.formState.errors.name && "border-red-500"
                 )}
                 {...form.register("name")}
@@ -136,13 +136,13 @@ export default function AdvisoryPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <label className="font-semibold text-slate-300 w-24 shrink-0">Taluka</label>
+              <label className="font-semibold text-[#1F2420] w-24 shrink-0 text-xs">Taluka</label>
               {optionsLoading ? (
-                <Skeleton className="flex-1 h-9 bg-[#232936]" />
+                <Skeleton className="flex-1 h-8.5 bg-[#EFF4EC]" />
               ) : (
                 <select
                   className={cn(
-                    "flex-1 h-9 rounded-lg bg-[#0E1116] border border-[#232936] text-white px-3 focus:border-[#22C55E] focus:ring-1 focus:ring-[#22C55E] outline-none text-sm",
+                    "flex-1 h-8.5 rounded-md bg-[#FFFFFF] border border-[#E4E8E1] text-[#1F2420] px-2.5 focus:border-[#426039] focus:ring-1 focus:ring-[#426039] outline-none text-xs",
                     form.formState.errors.taluka && "border-red-500"
                   )}
                   {...form.register("taluka")}
@@ -156,13 +156,13 @@ export default function AdvisoryPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <label className="font-semibold text-slate-300 w-24 shrink-0">Crop</label>
+              <label className="font-semibold text-[#1F2420] w-24 shrink-0 text-xs">Crop</label>
               {optionsLoading ? (
-                <Skeleton className="flex-1 h-9 bg-[#232936]" />
+                <Skeleton className="flex-1 h-8.5 bg-[#EFF4EC]" />
               ) : (
                 <select
                   className={cn(
-                    "flex-1 h-9 rounded-lg bg-[#0E1116] border border-[#232936] text-white px-3 focus:border-[#22C55E] focus:ring-1 focus:ring-[#22C55E] outline-none text-sm",
+                    "flex-1 h-8.5 rounded-md bg-[#EFF4EC] border border-[#E4E8E1] text-[#1F2420] px-2.5 focus:border-[#426039] focus:ring-1 focus:ring-[#426039] outline-none text-xs",
                     form.formState.errors.crop && "border-red-500"
                   )}
                   {...form.register("crop")}
@@ -175,11 +175,11 @@ export default function AdvisoryPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <label className="font-semibold text-slate-300 w-24 shrink-0">Sowing Date</label>
+              <label className="font-semibold text-[#1F2420] w-24 shrink-0 text-xs">Sowing Date</label>
               <input
                 type="date"
                 className={cn(
-                  "flex-1 h-9 rounded-lg bg-[#0E1116] border border-[#232936] text-white px-3 focus:border-[#22C55E] focus:ring-1 focus:ring-[#22C55E] outline-none text-sm",
+                  "flex-1 h-8.5 rounded-md bg-[#FFFFFF] border border-[#E4E8E1] text-[#1F2420] px-2.5 focus:border-[#426039] focus:ring-1 focus:ring-[#426039] outline-none text-xs",
                   form.formState.errors.sowing_date && "border-red-500"
                 )}
                 {...form.register("sowing_date")}
@@ -187,13 +187,13 @@ export default function AdvisoryPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <label className="font-semibold text-slate-300 w-24 shrink-0">Soil</label>
+              <label className="font-semibold text-[#1F2420] w-24 shrink-0 text-xs">Soil</label>
               {optionsLoading ? (
-                <Skeleton className="flex-1 h-9 bg-[#232936]" />
+                <Skeleton className="flex-1 h-8.5 bg-[#EFF4EC]" />
               ) : (
                 <select
                   className={cn(
-                    "flex-1 h-9 rounded-lg bg-[#0E1116] border border-[#232936] text-white px-3 focus:border-[#22C55E] focus:ring-1 focus:ring-[#22C55E] outline-none text-sm",
+                    "flex-1 h-8.5 rounded-md bg-[#FFFFFF] border border-[#E4E8E1] text-[#1F2420] px-2.5 focus:border-[#426039] focus:ring-1 focus:ring-[#426039] outline-none text-xs",
                     form.formState.errors.soil && "border-red-500"
                   )}
                   {...form.register("soil")}
@@ -207,13 +207,13 @@ export default function AdvisoryPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <label className="font-semibold text-slate-300 w-24 shrink-0">Variety</label>
+              <label className="font-semibold text-[#1F2420] w-24 shrink-0 text-xs">Variety</label>
               {optionsLoading ? (
-                <Skeleton className="flex-1 h-9 bg-[#232936]" />
+                <Skeleton className="flex-1 h-8.5 bg-[#EFF4EC]" />
               ) : (
                 <select
                   className={cn(
-                    "flex-1 h-9 rounded-lg bg-[#0E1116] border border-[#232936] text-white px-3 focus:border-[#22C55E] focus:ring-1 focus:ring-[#22C55E] outline-none text-sm",
+                    "flex-1 h-8.5 rounded-md bg-[#FFFFFF] border border-[#E4E8E1] text-[#1F2420] px-2.5 focus:border-[#426039] focus:ring-1 focus:ring-[#426039] outline-none text-xs",
                     form.formState.errors.variety && "border-red-500"
                   )}
                   {...form.register("variety")}
@@ -226,14 +226,14 @@ export default function AdvisoryPage() {
               )}
             </div>
 
-            <div className="flex items-center gap-2 pb-2 border-b border-[#232936]">
-              <label className="font-semibold text-slate-300 w-24 shrink-0">Acres</label>
+            <div className="flex items-center gap-2 pb-2 border-b border-[#E4E8E1]">
+              <label className="font-semibold text-[#1F2420] w-24 shrink-0 text-xs">Acres</label>
               <input
                 type="number"
                 step="0.1"
                 placeholder="5"
                 className={cn(
-                  "flex-1 h-9 rounded-lg bg-[#0E1116] border border-[#232936] text-white px-3 focus:border-[#22C55E] focus:ring-1 focus:ring-[#22C55E] outline-none text-sm",
+                  "flex-1 h-8.5 rounded-md bg-[#FFFFFF] border border-[#E4E8E1] text-[#1F2420] px-2.5 focus:border-[#426039] focus:ring-1 focus:ring-[#426039] outline-none text-xs",
                   form.formState.errors.acres && "border-red-500"
                 )}
                 {...form.register("acres", { valueAsNumber: true })}
@@ -241,38 +241,38 @@ export default function AdvisoryPage() {
             </div>
 
             <div className="flex items-center gap-2 pt-1">
-              <label className="font-semibold text-slate-300 w-24 shrink-0 text-xs">Storage ₹/q/mo</label>
+              <label className="font-semibold text-[#5E645C] w-24 shrink-0 text-xs">Storage ₹/q/mo</label>
               <input
                 type="range"
                 min="0"
                 max="50"
                 step="1"
-                className="flex-1 accent-[#22C55E]"
+                className="flex-1 accent-[#426039]"
                 {...form.register("storage_cost", { valueAsNumber: true })}
               />
-              <span className="w-10 text-right text-xs text-slate-400 font-mono">
+              <span className="w-10 text-right text-xs text-[#5E645C] font-mono">
                 {form.watch("storage_cost")?.toFixed(0)}
               </span>
             </div>
 
             <div className="flex items-center gap-2">
-              <label className="font-semibold text-slate-300 w-24 shrink-0 text-xs">Interest %/mo</label>
+              <label className="font-semibold text-[#5E645C] w-24 shrink-0 text-xs">Interest %/mo</label>
               <input
                 type="range"
                 min="0"
                 max="3"
                 step="0.1"
-                className="flex-1 accent-[#22C55E]"
+                className="flex-1 accent-[#426039]"
                 {...form.register("interest_rate", { valueAsNumber: true })}
               />
-              <span className="w-10 text-right text-xs text-slate-400 font-mono">
+              <span className="w-10 text-right text-xs text-[#5E645C] font-mono">
                 {form.watch("interest_rate")?.toFixed(1)}%
               </span>
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-[#22C55E] hover:bg-[#16A34A] text-slate-950 font-bold rounded-lg h-10 mt-3 text-sm transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:scale-[1.02] cursor-pointer"
+              className="w-full bg-[#426039] hover:bg-[#344d2d] text-white font-semibold rounded-md h-9 mt-3 text-xs tracking-normal transition-colors cursor-pointer"
               disabled={createAdvisory.isPending || optionsLoading}
             >
               {createAdvisory.isPending ? "Calculating..." : "Calculate Farm Advisory"}
@@ -283,77 +283,76 @@ export default function AdvisoryPage() {
         {/* Advisory Output */}
         <div className="flex-1">
           {res ? (
-            <div className="bg-[#171B22] border border-[#232936] rounded-xl shadow-xl overflow-hidden text-slate-200">
+            <div className="bg-[#FFFFFF] border border-[#E4E8E1] rounded-[16px] shadow-xs overflow-hidden text-[#1F2420]">
               <div className="p-6">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-1">
+                <h2 className="text-lg font-bold text-[#1F2420] flex items-center gap-2 mb-1">
                   🌱 {res.farmer.name || "Farmer"} – Soybean Advisory Report
                 </h2>
-                <p className="text-xs text-slate-400 mb-6 pb-4 border-b border-[#232936]">
+                <p className="text-xs text-[#5E645C] mb-5 pb-3 border-b border-[#E4E8E1]">
                   {res.farmer.taluka}, Sangli • {res.farmer.soil} soil • {res.farmer.acres} acres • {res.farmer.variety}
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div className="bg-[#101912] p-4 rounded-xl border border-[#22C55E]/30">
-                    <div className="flex items-center gap-2 text-xs text-[#4ADE80] font-semibold mb-2">
+                  <div className="bg-[#EFF4EC] p-4 rounded-xl border border-[#E4E8E1]">
+                    <div className="flex items-center gap-2 text-xs text-[#426039] font-semibold mb-1.5">
                       <Calendar className="w-4 h-4" /> Harvest Window
                     </div>
-                    <div className="text-2xl font-bold text-white mb-1">{res.harvest.expected_date}</div>
-                    <div className="text-xs text-slate-400">
+                    <div className="text-2xl font-bold text-[#1F2420] mb-0.5">{res.harvest.expected_date}</div>
+                    <div className="text-xs text-[#5E645C]">
                       Window: {res.harvest.window[0]} → {res.harvest.window[1]}
                     </div>
-                    <div className="text-xs font-medium text-[#4ADE80] mt-1">
+                    <div className="text-xs font-medium text-[#426039] mt-1">
                       {res.harvest.days_to_harvest > 0
                         ? `(in ${res.harvest.days_to_harvest} days)`
                         : `(${Math.abs(res.harvest.days_to_harvest)} days ago)`}
                     </div>
                   </div>
 
-                  <div className="bg-[#101725] p-4 rounded-xl border border-sky-500/30">
-                    <div className="flex items-center gap-2 text-xs text-sky-400 font-semibold mb-2">
-                      <Leaf className="w-4 h-4" /> Current Crop Stage
+                  <div className="bg-[#F5F5F0] p-4 rounded-xl border border-[#E4E8E1]">
+                    <div className="flex items-center gap-2 text-xs text-[#1F2420] font-semibold mb-1.5">
+                      <Leaf className="w-4 h-4 text-[#426039]" /> Current Crop Stage
                     </div>
-                    <div className="text-2xl font-bold text-white mb-1 capitalize">{res.harvest.crop_stage}</div>
-                    <div className="text-xs text-slate-400 mt-1">
+                    <div className="text-2xl font-bold text-[#1F2420] mb-0.5 capitalize">{res.harvest.crop_stage}</div>
+                    <div className="text-xs text-[#5E645C] mt-1">
                       {res.harvest.days_after_sowing} days after sowing ({new Date(res.farmer.sowing_date).toISOString().split('T')[0]})
                     </div>
                   </div>
                 </div>
 
-                <div className="text-sm text-slate-300 mb-6 bg-[#0E1116] p-3.5 rounded-lg border border-[#232936]">
-                  <strong className="text-white">Agronomic Stage Tip:</strong> {res.harvest.stage_tip}
+                <div className="text-xs text-[#1F2420] mb-5 bg-[#EFF4EC] p-3 rounded-lg border border-[#E4E8E1]">
+                  <strong className="text-[#426039]">Agronomic Stage Tip:</strong> {res.harvest.stage_tip}
                 </div>
 
-                <div className="bg-[#241315] border border-red-900/50 p-4 rounded-xl mb-4 text-sm relative">
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 rounded-l-xl"></div>
+                <div className="bg-[#FEF2F2] border border-red-200 p-4 rounded-xl mb-4 text-xs relative">
                   <div className="flex items-start gap-2 mb-1">
                     <span>💰</span>
                     <div>
-                      <span className="font-semibold text-slate-200">Selling Strategy: </span>
-                      <span className="text-red-400 font-bold uppercase">{res.advisory.decision} (in phases)</span>
-                      <span className="text-slate-400"> (target: {res.advisory.sell_when}) – est. ₹{res.advisory.expected_net_price}/q</span>
+                      <span className="font-semibold text-[#1F2420]">Selling Strategy: </span>
+                      <span className="text-red-700 font-bold uppercase">{res.advisory.decision} (in phases)</span>
+                      <span className="text-[#5E645C]"> (target: {res.advisory.sell_when}) – est. ₹{res.advisory.expected_net_price}/q</span>
                     </div>
                   </div>
-                  <div className="ml-7 text-slate-300 mb-1">{res.advisory.reason}</div>
-                  <div className="ml-7 text-[#4ADE80] text-xs mb-1">मराठी: {res.advisory.reason_marathi}</div>
-                  <div className="ml-7 text-slate-500 text-xs">Mandi benchmark: ₹{res.market.analysis.price_now}/q as of {res.market.analysis.as_of.split('T')[0]}</div>
+                  <div className="ml-6 text-[#1F2420] mb-1">{res.advisory.reason}</div>
+                  <div className="ml-6 text-[#426039] font-medium mb-1">मराठी: {res.advisory.reason_marathi}</div>
+                  <div className="ml-6 text-[#5E645C] text-[11px]">Mandi benchmark: ₹{res.market.analysis.price_now}/q as of {res.market.analysis.as_of.split('T')[0]}</div>
                 </div>
 
-                <div className="text-sm text-slate-300 mb-4 flex items-start gap-2">
+                <div className="text-xs text-[#1F2420] mb-4 flex items-start gap-2">
                   <span>📈</span>
                   <div>
-                    <span className="font-medium text-slate-200">Yield outlook:</span> {res.yield_outlook.kg_per_ha.expected.toFixed(0)} kg/ha
+                    <span className="font-medium text-[#5E645C]">Yield outlook:</span> {res.yield_outlook.kg_per_ha.expected.toFixed(0)} kg/ha
                     (range {res.yield_outlook.kg_per_ha.low.toFixed(0)} – {res.yield_outlook.kg_per_ha.high.toFixed(0)}) → 
-                    <span className="font-bold text-[#4ADE80]"> {res.yield_outlook.production_quintals.expected.toFixed(0)} quintals </span> 
+                    <span className="font-bold text-[#426039]"> {res.yield_outlook.production_quintals.expected.toFixed(0)} quintals </span> 
                     ({res.yield_outlook.production_quintals.low.toFixed(0)}–{res.yield_outlook.production_quintals.high.toFixed(0)}) – 
                     est. revenue {formatCurrency(res.advisory.revenue_inr.expected)}
                   </div>
                 </div>
 
-                <div className="mb-6">
-                  <div className="flex items-center gap-2 font-medium text-white mb-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-400" /> Agronomic Alerts
+                <div>
+                  <div className="flex items-center gap-1.5 font-semibold text-[#1F2420] text-xs mb-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> Agronomic Alerts
                   </div>
-                  <ul className="space-y-1 text-sm pl-6 list-disc text-slate-400">
+                  <ul className="space-y-1 text-xs pl-5 list-disc text-[#5E645C]">
                     {res.alerts?.map((alert: string, i: number) => (
                       <li key={i}>{alert}</li>
                     ))}
@@ -362,11 +361,11 @@ export default function AdvisoryPage() {
               </div>
             </div>
           ) : (
-            <div className="h-full min-h-[420px] border border-[#232936] rounded-xl border-dashed flex flex-col items-center justify-center text-slate-400 p-8 text-center bg-[#171B22]/50">
-              <Leaf className="w-12 h-12 mb-4 text-[#22C55E]/40" />
-              <p className="text-lg font-semibold text-white mb-2">Ready to calculate your advisory</p>
-              <p className="text-sm max-w-sm text-slate-400">
-                Fill out the farm parameters on the left to receive customized harvest predictions, yield forecasts, and Sangli mandi storage guidance.
+            <div className="h-full min-h-[380px] border border-[#E4E8E1] rounded-[16px] border-dashed flex flex-col items-center justify-center text-[#5E645C] p-8 text-center bg-[#FFFFFF]">
+              <Leaf className="w-10 h-10 mb-3 text-[#426039]/40" />
+              <p className="text-base font-semibold text-[#1F2420] mb-1">Ready to calculate your farm advisory</p>
+              <p className="text-xs max-w-sm text-[#5E645C]">
+                Select your taluka and farm parameters on the left to receive customized harvest predictions and Sangli mandi storage guidance.
               </p>
             </div>
           )}
