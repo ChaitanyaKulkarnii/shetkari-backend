@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import LandingPage from './pages/LandingPage.jsx'
+import CropAdvisoryPage from './pages/CropAdvisoryPage.jsx'
 import AuthScreen from './AuthScreen.jsx'
 import { AnalysisReady, CropIntake, WelcomeScreen } from './Onboarding.jsx'
 import { AppProvider, useApp } from './context/AppContext.jsx'
@@ -158,7 +160,7 @@ function SideNav({ page, setPage, open, setOpen, displayName, onSignOut, onEditF
   )
 }
 
-function Topbar({ page, setOpen, displayName, onEditFarm }) {
+function Topbar({ page, setOpen, displayName, onEditFarm, onAnalyzeCrop, onHome }) {
   const { health } = useApp()
   return (
     <header className="topbar">
@@ -166,7 +168,13 @@ function Topbar({ page, setOpen, displayName, onEditFarm }) {
         <Menu size={19} />
       </button>
       <div className="crumb">
-        <span>KrishiLens</span>
+        <button 
+          onClick={onHome}
+          className="hover:underline cursor-pointer bg-transparent border-0 p-0 text-inherit font-inherit"
+          title="Back to Landing Page"
+        >
+          KrishiLens
+        </button>
         <ChevronRight size={14} />
         <b>{nav.find(x => x.id === page)?.label}</b>
       </div>
@@ -177,6 +185,24 @@ function Topbar({ page, setOpen, displayName, onEditFarm }) {
           </span>
         ) : (
           <span className="live-label"><i /> DEMO ENVIRONMENT</span>
+        )}
+        {onAnalyzeCrop && (
+          <button 
+            className="button button-primary !py-1 !px-2.5 !text-xs !h-auto flex items-center gap-1 cursor-pointer"
+            onClick={onAnalyzeCrop}
+            title="Open calibrated crop advisory form"
+          >
+            <Sprout size={13} /> Analyze Crop
+          </button>
+        )}
+        {onHome && (
+          <button 
+            className="button button-outline !py-1 !px-2.5 !text-xs !h-auto cursor-pointer"
+            onClick={onHome}
+            title="Back to Landing Page"
+          >
+            Overview
+          </button>
         )}
         <button 
           className="button button-outline !py-1 !px-2.5 !text-xs !h-auto"
@@ -1625,6 +1651,17 @@ function AppContent() {
   })
   const [navOpen, setNavOpen] = useState(false)
 
+  // Top-level Application View Route: 'landing' | 'analyze' | 'workspace'
+  const [route, setRoute] = useState(() => {
+    const path = window.location.pathname.toLowerCase()
+    const hash = window.location.hash.toLowerCase().replace('#', '')
+    if (path.includes('analyze') || hash === 'analyze') return 'analyze'
+    if (path.includes('workspace') || hash === 'workspace' || ['dashboard', 'crop', 'yield', 'market', 'selling', 'data'].includes(hash)) {
+      return 'workspace'
+    }
+    return 'landing'
+  })
+
   const { profile, setProfile, uiData } = useApp()
 
   const setStage = (s) => {
@@ -1637,15 +1674,40 @@ function AppContent() {
     setPageState(p)
   }
 
+  const navigateTo = (target) => {
+    if (target === 'analyze') {
+      window.location.hash = 'analyze'
+      setRoute('analyze')
+    } else if (target === 'workspace') {
+      window.location.hash = 'workspace'
+      setRoute('workspace')
+    } else {
+      window.location.hash = ''
+      setRoute('landing')
+    }
+  }
+
   useEffect(() => {
-    const handleHash = () => {
-      const hash = window.location.hash.replace('#', '')
-      if (['dashboard', 'crop', 'yield', 'market', 'selling', 'data'].includes(hash)) {
-        setPageState(hash)
+    const handleRouting = () => {
+      const path = window.location.pathname.toLowerCase()
+      const hash = window.location.hash.toLowerCase().replace('#', '')
+      if (path.includes('analyze') || hash === 'analyze') {
+        setRoute('analyze')
+      } else if (path.includes('workspace') || hash === 'workspace' || ['dashboard', 'crop', 'yield', 'market', 'selling', 'data'].includes(hash)) {
+        setRoute('workspace')
+        if (['dashboard', 'crop', 'yield', 'market', 'selling', 'data'].includes(hash)) {
+          setPageState(hash)
+        }
+      } else {
+        setRoute('landing')
       }
     }
-    window.addEventListener('hashchange', handleHash)
-    return () => window.removeEventListener('hashchange', handleHash)
+    window.addEventListener('hashchange', handleRouting)
+    window.addEventListener('popstate', handleRouting)
+    return () => {
+      window.removeEventListener('hashchange', handleRouting)
+      window.removeEventListener('popstate', handleRouting)
+    }
   }, [])
 
   const signIn = (person, selectedLanguage) => {
@@ -1661,8 +1723,30 @@ function AppContent() {
     localStorage.removeItem('farmerStage')
     setAuthenticated(false)
     setStageState('welcome')
+    navigateTo('landing')
   }
 
+  // 1. Landing Page View
+  if (route === 'landing') {
+    return (
+      <LandingPage
+        onAnalyze={() => navigateTo('analyze')}
+        onWorkspace={() => navigateTo('workspace')}
+      />
+    )
+  }
+
+  // 2. Crop Advisory Page View (/analyze)
+  if (route === 'analyze') {
+    return (
+      <CropAdvisoryPage
+        onHome={() => navigateTo('landing')}
+        onWorkspace={() => navigateTo('workspace')}
+      />
+    )
+  }
+
+  // 3. Workspace / Prototype Flow
   if (!authenticated) {
     return <AuthScreen language={language} setLanguage={setLanguage} onComplete={signIn} />
   }
@@ -1672,7 +1756,7 @@ function AppContent() {
       <WelcomeScreen
         name={profile?.name || 'Farmer'}
         language={language}
-        onAnalyze={() => setStage('intake')}
+        onAnalyze={() => navigateTo('analyze')}
         onWorkspace={() => setStage('workspace')}
         onSignOut={signOut}
       />
@@ -1719,6 +1803,8 @@ function AppContent() {
           setOpen={setNavOpen}
           displayName={profile?.name || 'Farmer'}
           onEditFarm={() => setStage('intake')}
+          onAnalyzeCrop={() => navigateTo('analyze')}
+          onHome={() => navigateTo('landing')}
         />
         <main className="page-content">
           {page === 'dashboard' && (
@@ -1737,7 +1823,7 @@ function AppContent() {
         <footer className="app-footer">
           <span>© 2026 KrishiLens · Crop-to-Market Decision Support</span>
           <span>Sangli APMC region · Kharif 2026</span>
-          <button onClick={() => setStage('welcome')}>Switch to onboarding view</button>
+          <button onClick={() => navigateTo('landing')}>Back to Landing Page</button>
         </footer>
       </div>
     </div>
