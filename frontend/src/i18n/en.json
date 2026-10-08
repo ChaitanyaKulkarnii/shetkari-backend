@@ -1,0 +1,99 @@
+{
+  "translation": {
+    "app": {
+      "title": "Sangli Soybean Advisory",
+      "subtitle": "Smart harvest and market insights for Sangli farmers",
+      "status_ok": "System Normal",
+      "status_error": "System Offline"
+    },
+    "nav": {
+      "advisory": "Advisory",
+      "market": "Market Explorer",
+      "feedback": "Report Harvest",
+      "about": "About Model",
+      "admin": "Admin"
+    },
+    "form": {
+      "name": "Farmer Name (Optional)",
+      "taluka": "Taluka",
+      "crop": "Crop",
+      "variety": "Variety",
+      "soil": "Soil Type",
+      "sowing_date": "Sowing Date",
+      "acres": "Farm Size (Acres)",
+      "submit": "Get Advisory",
+      "loading": "Analyzing...",
+      "select": "Select {{item}}"
+    },
+    "result": {
+      "decision": {
+        "title": "Decision",
+        "sell": "SELL AT HARVEST",
+        "hold": "HOLD",
+        "revenue": "Expected Revenue: {{amount}}",
+        "explanation_sell": "Prices are expected to drop. Selling immediately is recommended.",
+        "explanation_hold": "Prices are expected to rise enough to cover storage costs. Holding is recommended."
+      },
+      "harvest": {
+        "title": "Harvest Info",
+        "expected_date": "Expected Harvest Date",
+        "days_to_harvest": "Days to Harvest",
+        "stage": "Current Stage"
+      },
+      "yield": {
+        "title": "Yield Outlook (Quintals)",
+        "low": "Low",
+        "expected": "Expected",
+        "high": "High",
+        "total": "Total for {{acres}} acres",
+        "per_acre": "Per acre: {{amount}} q"
+      },
+      "market": {
+        "title": "Market Snapshot",
+        "price": "Current Price",
+        "momentum": "Momentum",
+        "seasonality": "Seasonality"
+      },
+      "actions": {
+        "new": "New Advisory",
+        "share": "Share",
+        "report": "Report Actual Harvest"
+      },
+      "disclaimer": "Advisory is a decision aid, not a guarantee."
+    },
+    "market": {
+      "title": "Market Explorer",
+      "storage_plan": "6-Month Storage Plan",
+      "best_month": "Best Month to Sell",
+      "net_price": "Net Price (₹)",
+      "month": "Month",
+      "storage_cost": "Storage Cost",
+      "revenue": "Expected Net Revenue"
+    },
+    "feedback": {
+      "title": "Report Actual Harvest",
+      "subtitle": "Help improve our predictions by sharing your actual harvest date.",
+      "harvest_date": "Actual Harvest Date",
+      "submit": "Submit Feedback",
+      "success": "Thank you! Your feedback helps improve predictions for all farmers."
+    },
+    "about": {
+      "title": "About the Model",
+      "version": "Model Version",
+      "trained": "Last Trained",
+      "how_it_works": "How it works",
+      "assumptions": "Assumptions & Limitations"
+    },
+    "admin": {
+      "title": "Admin Dashboard",
+      "api_key": "API Key",
+      "retrain": "Retrain Harvest Model",
+      "confirm": "Are you sure you want to retrain the model?",
+      "success": "Model retrained successfully. New observations used: {{count}}"
+    },
+    "error": {
+      "server_unreachable": "Server is not reachable, please try again.",
+      "retry": "Retry"
+    }
+  }
+}

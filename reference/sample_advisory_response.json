@@ -1,0 +1,230 @@
+{
+  "model_version": "0.2.0",
+  "generated_on": "2026-10-08",
+  "farmer": {
+    "name": "Raju Patil",
+    "taluka": "Miraj",
+    "crop": "Soybean",
+    "soil": "Deep black (heavy)",
+    "variety": "Medium (~100 days)",
+    "acres": 5.0,
+    "sowing_date": "2026-06-25"
+  },
+  "harvest": {
+    "expected_date": "2026-10-03",
+    "window": [
+      "2026-09-28",
+      "2026-10-08"
+    ],
+    "duration_days": 100,
+    "late_sowing_adjustment_days": 0,
+    "days_to_harvest": -5,
+    "days_after_sowing": 105,
+    "crop_stage": "Maturity / harvest",
+    "stage_tip": "Harvest when ~95% of pods turn brown and leaves drop. Delay causes pod shattering and losses.",
+    "calibrated": false
+  },
+  "yield_outlook": {
+    "kg_per_ha": {
+      "low": 1153.36,
+      "expected": 1721.64,
+      "high": 2289.91
+    },
+    "production_quintals": {
+      "low": 23.34,
+      "expected": 34.84,
+      "high": 46.34
+    },
+    "method": "Climatology range (average of past seasons) – weather signal too weak with few seasons",
+    "soil_factor": 1.0,
+    "soil_factor_is_assumption": true,
+    "long_term_avg_kg_ha": 1721.64
+  },
+  "market": {
+    "analysis": {
+      "as_of": "2026-09-24",
+      "days_since_last_price": 14,
+      "stale": false,
+      "price_now": 6080,
+      "change_pct": {
+        "vs_30d": -16.1,
+        "vs_90d": null,
+        "vs_1y": null
+      },
+      "last_12m": {
+        "low": 5855,
+        "high": 7250,
+        "percentile": 17.0,
+        "level": "Low"
+      },
+      "momentum": "Falling",
+      "trend_pct_per_month": -10.7,
+      "volatility": "Medium",
+      "mandi_comparison": {
+        "markets": [
+          {
+            "market": "Sangli",
+            "median_price": 7000,
+            "n_quotes": 11
+          },
+          {
+            "market": "Tasgaon",
+            "median_price": 6140,
+            "n_quotes": 1
+          }
+        ],
+        "comparable": false,
+        "note": "Mandi comparison shown only when every market has enough price quotes in the last 12 months."
+      },
+      "seasonality": {
+        "index": {
+          "Jan": 1.0,
+          "Feb": 1.0,
+          "Mar": 0.99,
+          "Apr": 1.01,
+          "May": 1.0,
+          "Jun": 0.99,
+          "Jul": 0.99,
+          "Aug": 0.99,
+          "Sep": 0.99,
+          "Oct": 0.98,
+          "Nov": 1.0,
+          "Dec": 1.03
+        },
+        "best_months": [
+          "Dec",
+          "Apr",
+          "Jan"
+        ],
+        "weakest_months": [
+          "Oct",
+          "Jun",
+          "Sep"
+        ],
+        "note": "Seasonal pattern is modest (about ±2%) – a tilt, not a guarantee."
+      },
+      "arrivals": {
+        "avg_tonnes_by_month": {
+          "Jan": 69.4,
+          "Feb": 70.6,
+          "Mar": 89.0,
+          "Apr": 82.0,
+          "May": 151.8,
+          "Jun": 54.6,
+          "Jul": 60.2,
+          "Aug": 55.8,
+          "Sep": 59.1,
+          "Oct": 52.1,
+          "Nov": 74.3,
+          "Dec": 74.5
+        },
+        "peak_months": [
+          "May",
+          "Mar",
+          "Apr"
+        ],
+        "note": "2025–26 arrivals are missing in the source data."
+      },
+      "msp": null,
+      "market_notes": [
+        "Price is low versus the last 12 months – if you can store safely, waiting may help, but the evidence is weak."
+      ]
+    },
+    "harvest_time_plan": [
+      {
+        "sell_month": "Oct 2026",
+        "expected_price": 6026.65,
+        "net_price": 6026.65,
+        "low": 6026.65,
+        "high": 6026.65,
+        "gain_pct": 0.0,
+        "prob_beats_first": null
+      },
+      {
+        "sell_month": "Nov 2026",
+        "expected_price": 6120.48,
+        "net_price": 6044.68,
+        "low": 5875.07,
+        "high": 6214.28,
+        "gain_pct": 0.3,
+        "prob_beats_first": 0.54
+      },
+      {
+        "sell_month": "Dec 2026",
+        "expected_price": 6315.9,
+        "net_price": 6164.3,
+        "low": 5877.06,
+        "high": 6451.54,
+        "gain_pct": 2.28,
+        "prob_beats_first": 0.68
+      },
+      {
+        "sell_month": "Jan 2027",
+        "expected_price": 6160.02,
+        "net_price": 5932.62,
+        "low": 5402.52,
+        "high": 6462.73,
+        "gain_pct": -1.56,
+        "prob_beats_first": 0.43
+      },
+      {
+        "sell_month": "Feb 2027",
+        "expected_price": 6153.69,
+        "net_price": 5850.49,
+        "low": 5293.14,
+        "high": 6407.84,
+        "gain_pct": -2.92,
+        "prob_beats_first": 0.38
+      },
+      {
+        "sell_month": "Mar 2027",
+        "expected_price": 6089.16,
+        "net_price": 5710.16,
+        "low": 5048.66,
+        "high": 6371.66,
+        "gain_pct": -5.25,
+        "prob_beats_first": 0.32
+      },
+      {
+        "sell_month": "Apr 2027",
+        "expected_price": 6208.19,
+        "net_price": 5753.39,
+        "low": 5009.48,
+        "high": 6497.3,
+        "gain_pct": -4.53,
+        "prob_beats_first": 0.36
+      }
+    ]
+  },
+  "advisory": {
+    "decision": "SELL AT HARVEST",
+    "sell_when": "Oct 2026",
+    "expected_net_price": 6026.65,
+    "reason": "Waiting is not expected to beat the harvest-time price after storage and interest cost.",
+    "reason_marathi": "कापणीनंतर टप्प्याटप्प्याने विक्री करा",
+    "revenue_inr": {
+      "low": 140651.48,
+      "expected": 209952.36,
+      "high": 279253.23
+    }
+  },
+  "soil": {
+    "type": "Deep black (heavy)",
+    "note": "Holds water well. Risk is waterlogging in heavy rain – use broad-bed-furrow / drainage channels."
+  },
+  "crop_health": {
+    "available": true,
+    "now": 0.6,
+    "normal": 0.54,
+    "n_obs": 3,
+    "anomaly_pct": 10.2,
+    "status": "Healthy",
+    "message": "Satellite greenness in Miraj is +10.2% vs same dates in past years (Healthy)."
+  },
+  "alerts": [
+    "Sowing is within the best window (15 June – 15 July).",
+    "A dry spell of 17 days occurred since sowing – check soil moisture.",
+    "Keep drainage channels open during heavy rain."
+  ],
+  "disclaimer": "Prototype advisory from 2017–2026 Sangli records; yield is a range and soil factors are assumptions."
+}
