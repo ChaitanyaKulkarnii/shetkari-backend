@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
 import Home from "./pages/Home";
+import AdvisoryPage from "./pages/AdvisoryPage";
 import Result from "./pages/Result";
 import Market from "./pages/Market";
 import Feedback from "./pages/Feedback";
@@ -13,6 +14,7 @@ function App() {
     <Routes>
       <Route path="/" element={<AppLayout />}>
         <Route index element={<Home />} />
+        <Route path="advisory" element={<AdvisoryPage />} />
         <Route path="result" element={<Result />} />
         <Route path="market" element={<Market />} />
         <Route path="feedback" element={<Feedback />} />

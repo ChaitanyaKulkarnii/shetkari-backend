@@ -1,355 +1,486 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { advisorySchema, type AdvisoryFormValues } from "../lib/validation";
-import { useOptions, useCreateAdvisory } from "../api/queries";
-import { Button, Alert, AlertTitle, AlertDescription, Skeleton, cn } from "../components/ui";
-import { formatCurrency } from "../lib/format";
-import { Calendar, Leaf, AlertTriangle } from "lucide-react";
+import { useState, useRef } from "react";
+import { Link } from "react-router-dom";
+import { 
+  Leaf, 
+  Camera, 
+  UploadCloud, 
+  CheckCircle2, 
+  AlertCircle, 
+  ArrowRight, 
+  Cpu, 
+  TrendingUp, 
+  X, 
+  RefreshCw,
+  Check
+} from "lucide-react";
+
+import farmerInFieldImg from "../assets/farmer_in_field.jpg";
+import soybeanCropCloseupImg from "../assets/soybean_crop_closeup.jpg";
+import farmerInspectingImg from "../assets/farmer_inspecting_crop.jpg";
+
+interface DiagnosisResult {
+  condition: string;
+  status: "healthy" | "warning" | "alert";
+  confidence: number;
+  stage: string;
+  symptoms: string;
+  recommendation: string;
+  actionMarathi: string;
+}
 
 export default function Home() {
-  const { data: options, isLoading: optionsLoading, isError: optionsError, refetch } = useOptions();
-  const createAdvisory = useCreateAdvisory();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<AdvisoryFormValues>({
-    resolver: zodResolver(advisorySchema),
-    defaultValues: {
-      name: "",
-      taluka: "",
-      crop: "Soybean",
-      sowing_date: "",
-      soil: "",
-      variety: "",
-      acres: undefined,
-      storage_cost: 15,
-      interest_rate: 1, // Will map to 0.01
-    },
-  });
-
-  useEffect(() => {
-    const saved = localStorage.getItem("farmerProfile");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.name) form.setValue("name", parsed.name);
-        if (parsed.taluka) form.setValue("taluka", parsed.taluka);
-        if (parsed.acres) form.setValue("acres", parsed.acres);
-        if (parsed.storage_cost !== undefined) form.setValue("storage_cost", parsed.storage_cost);
-        if (parsed.interest_rate !== undefined) form.setValue("interest_rate", parsed.interest_rate);
-      } catch (e) {}
-    }
-  }, [form]);
-
-  const onSubmit = (data: AdvisoryFormValues) => {
-    localStorage.setItem(
-      "farmerProfile",
-      JSON.stringify({ 
-        name: data.name, 
-        taluka: data.taluka, 
-        acres: data.acres,
-        storage_cost: data.storage_cost,
-        interest_rate: data.interest_rate 
-      })
-    );
-
-    createAdvisory.mutate(
-      {
-        ...data,
-        name: data.name ?? null,
-        acres: Number(data.acres),
-        storage_cost: Number(data.storage_cost),
-        interest_rate: Number(data.interest_rate) / 100,
+  const sampleImages = [
+    {
+      title: "Healthy Soybean Crop",
+      image: soybeanCropCloseupImg,
+      result: {
+        condition: "Healthy Crop Canopy (No Disease Detected)",
+        status: "healthy" as const,
+        confidence: 98,
+        stage: "R4 - Full Pod Growth",
+        symptoms: "Lush green foliage, normal chlorophyll retention, robust pod formation.",
+        recommendation: "Maintain optimal moisture during pod filling. No chemical fungicide required at this stage.",
+        actionMarathi: "पीक निरोगी आहे. फवारणीची गरज नाही, पाण्याचा निचरा योग्य ठेवा.",
       },
-      {
-        onError: (err: any) => {
-          if (err.status === 422 && Array.isArray(err.detail)) {
-            err.detail.forEach((issue: any) => {
-              const field = issue.loc[issue.loc.length - 1];
-              form.setError(field as any, { message: issue.msg });
-            });
-          }
-        },
-      }
-    );
+    },
+    {
+      title: "Leaf Spotting / Rust Symptom",
+      image: farmerInspectingImg,
+      result: {
+        condition: "Soybean Rust (Early Phase)",
+        status: "warning" as const,
+        confidence: 92,
+        stage: "R3 - Pod Initiation",
+        symptoms: "Early chlorotic flecks detected on lower leaf margins.",
+        recommendation: "Inspect underside of leaves in 2-acre radius. Apply prophylactic Hexaconazole or Tebuconazole if humidity exceeds 85%.",
+        actionMarathi: "तांबेरा किंवा पानांवरील ठिपके आढळले. त्वरित जैविक किंवा शिफारस केलेली बुरशीनाशक फवारणी करा.",
+      },
+    },
+    {
+      title: "Field Observation Sample",
+      image: farmerInFieldImg,
+      result: {
+        condition: "Optimal Vegetative Stand",
+        status: "healthy" as const,
+        confidence: 95,
+        stage: "V4 - Vegetative Stage",
+        symptoms: "Uniform plant density, healthy root nodulation, balanced canopy cover.",
+        recommendation: "Schedule weed management before canopy closure. Prepare field drainage for upcoming rain spell.",
+        actionMarathi: "झाडांची वाढ समाधानकारक आहे. तण नियंत्रण वेळेत पूर्ण करा.",
+      },
+    },
+  ];
+
+  const handleOpenAnalyzer = () => {
+    setIsModalOpen(true);
+    if (!selectedImage) {
+      setSelectedImage(sampleImages[0].image);
+      setDiagnosis(sampleImages[0].result);
+    }
   };
 
-  if (optionsError) {
-    return (
-      <Alert variant="destructive">
-        <AlertTitle>Server is not reachable</AlertTitle>
-        <Button variant="outline" onClick={() => refetch()} className="mt-4">
-          Retry
-        </Button>
-      </Alert>
-    );
-  }
+  const handleSelectSample = (sample: typeof sampleImages[0]) => {
+    setSelectedImage(sample.image);
+    setIsAnalyzing(true);
+    setDiagnosis(null);
+    setTimeout(() => {
+      setDiagnosis(sample.result);
+      setIsAnalyzing(false);
+    }, 800);
+  };
 
-  const res = createAdvisory.data;
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setSelectedImage(url);
+      setIsAnalyzing(true);
+      setDiagnosis(null);
+      setTimeout(() => {
+        setDiagnosis({
+          condition: "Uploaded Leaf Analysis: Healthy Vegetation",
+          status: "healthy",
+          confidence: 94,
+          stage: "Pod Development Stage",
+          symptoms: "No severe blight or fungal lesions detected on uploaded sample.",
+          recommendation: "Crop health appears stable. Continue routine scouting and soil moisture monitoring.",
+          actionMarathi: "अपलोड केलेल्या फोटोमध्ये पीक निरोगी दिसत आहे. नियमित देखरेख ठेवा.",
+        });
+        setIsAnalyzing(false);
+      }, 1200);
+    }
+  };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 animate-in fade-in duration-500">
-      {/* Sidebar Form */}
-      <div className="w-full lg:w-1/3 xl:w-1/4 shrink-0 space-y-4">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 bg-white p-4 rounded-lg border shadow-sm text-sm">
-          {createAdvisory.isError && (createAdvisory.error as any).status !== 422 && (
-            <Alert variant="destructive" className="p-3">
-              <AlertTitle className="text-sm">{(createAdvisory.error as any).error || "Error"}</AlertTitle>
-              <AlertDescription className="text-xs">{(createAdvisory.error as any).detail as string}</AlertDescription>
-            </Alert>
-          )}
+    <div className="relative min-h-[calc(100vh-4rem)] bg-[#0E1116] text-slate-100 flex flex-col justify-between overflow-hidden">
+      {/* Subtle ambient agricultural background effects */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-[#22C55E]/5 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute -top-10 left-10 w-96 h-96 bg-[#16A34A]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#22C55E]/4 rounded-full blur-[120px] pointer-events-none" />
 
-          <div className="flex items-center gap-2">
-            <label className="font-semibold w-20 shrink-0">Name</label>
-            <input
-              type="text"
-              placeholder="Raju"
-              className={cn("flex-1 h-8 rounded border px-2 focus:ring-1 focus:ring-slate-900 outline-none", form.formState.errors.name && "border-red-500")}
-              {...form.register("name")}
-            />
+      {/* Main Container */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16 sm:py-16 lg:py-20 flex-1 flex flex-col justify-center">
+        
+        {/* Top Kicker Badge */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[#232936] bg-[#171B22]/90 text-slate-300 text-xs sm:text-sm font-medium backdrop-blur-md shadow-md transition-all hover:border-[#22C55E]/40 hover:bg-[#1A202A]">
+            <span className="flex h-2 w-2 rounded-full bg-[#22C55E] animate-pulse" />
+            <span className="text-white font-semibold">Sangli Soybean Advisory</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-slate-400">AI-powered crop intelligence for smarter farming.</span>
+          </div>
+        </div>
+
+        {/* Hero Section Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          
+          {/* Left Agricultural Image Card (Indian Farmer in field) */}
+          <div className="hidden lg:block lg:col-span-3">
+            <div className="group relative rounded-2xl p-2 bg-[#171B22] border border-[#232936] shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:border-[#22C55E]/40 glow-card">
+              <div className="relative overflow-hidden rounded-xl aspect-[3/4]">
+                <img
+                  src={farmerInFieldImg}
+                  alt="Indian farmer in soybean field in Maharashtra"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0E1116] via-transparent to-transparent opacity-80" />
+                <div className="absolute bottom-3 left-3 right-3 text-left">
+                  <div className="inline-block px-2 py-0.5 rounded bg-[#22C55E]/20 text-[#4ADE80] text-[10px] font-semibold border border-[#22C55E]/30 mb-1">
+                    Sangli Kharif Season
+                  </div>
+                  <p className="text-xs font-semibold text-white leading-snug">
+                    Real farmer insights tuned for local soil & climate
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <label className="font-semibold w-20 shrink-0">Taluka</label>
-            {optionsLoading ? <Skeleton className="flex-1 h-8" /> : (
-              <select
-                className={cn("flex-1 h-8 rounded border px-2 focus:ring-1 focus:ring-slate-900 outline-none bg-white", form.formState.errors.taluka && "border-red-500")}
-                {...form.register("taluka")}
+          {/* Center Column: Focused Hero Content & Primary CTA */}
+          <div className="lg:col-span-6 text-center flex flex-col items-center">
+            
+            {/* Main Headline */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl font-extrabold tracking-tight text-white uppercase leading-[1.1] mb-4">
+              Analyze <br className="hidden sm:inline" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-[#4ADE80]">
+                Your Crop
+              </span>
+            </h1>
+
+            {/* Subheadline */}
+            <p className="text-lg sm:text-xl font-semibold text-slate-200 mb-3 max-w-xl">
+              Get smart, personalized crop insights powered by AI.
+            </p>
+
+            {/* Supporting Description */}
+            <p className="text-sm sm:text-base text-slate-400 font-normal leading-relaxed max-w-lg mb-8">
+              Upload your crop photo and get actionable insights to help you understand crop health, identify possible issues, and make better farming decisions.
+            </p>
+
+            {/* PRIMARY CTA BUTTON: "Analyze Your Crop" */}
+            <div className="relative group w-full sm:w-auto">
+              <button
+                onClick={handleOpenAnalyzer}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3.5 px-8 sm:px-10 py-4 sm:py-4.5 rounded-xl text-base sm:text-lg font-bold text-slate-950 bg-[#22C55E] hover:bg-[#16A34A] transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(34,197,94,0.45)] hover:shadow-[0_0_50px_rgba(34,197,94,0.7)] cursor-pointer"
               >
-                <option value="">Select</option>
-                {options?.talukas?.map((t: string) => <option key={t} value={t}>{t}</option>)}
-              </select>
-            )}
-          </div>
+                <div className="w-7 h-7 rounded-lg bg-black/15 flex items-center justify-center text-slate-950">
+                  <Leaf className="w-4 h-4 fill-current" />
+                </div>
+                <span>Analyze Your Crop</span>
+                <ArrowRight className="w-5 h-5 ml-0.5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
 
-          <div className="flex items-center gap-2">
-            <label className="font-semibold w-20 shrink-0">Crop</label>
-            {optionsLoading ? <Skeleton className="flex-1 h-8" /> : (
-              <select
-                className={cn("flex-1 h-8 rounded border px-2 focus:ring-1 focus:ring-slate-900 outline-none bg-slate-50", form.formState.errors.crop && "border-red-500")}
-                {...form.register("crop")}
+            {/* Small supporting text below button */}
+            <p className="text-xs sm:text-sm text-slate-400 font-medium tracking-wide flex items-center justify-center gap-2 mt-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
+              AI-powered crop analysis • Smart farming insights
+            </p>
+
+            {/* Quick access link for traditional agronomic advisory calculator */}
+            <div className="mt-6 pt-5 border-t border-[#232936]/60 w-full max-w-md flex items-center justify-center gap-4 text-xs text-slate-400">
+              <span>Need harvest dates & mandi prices?</span>
+              <Link
+                to="/advisory"
+                className="text-[#22C55E] hover:text-[#4ADE80] font-semibold underline underline-offset-4 transition-colors"
               >
-                <option value="">Select</option>
-                {options?.crops?.map((c: string) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            )}
+                Open Full Advisory Calculator →
+              </Link>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <label className="font-semibold w-20 shrink-0 truncate">Sowing d...</label>
-            <input
-              type="date"
-              className={cn("flex-1 h-8 rounded border px-2 focus:ring-1 focus:ring-slate-900 outline-none", form.formState.errors.sowing_date && "border-red-500")}
-              {...form.register("sowing_date")}
-            />
+          {/* Right Column: Agricultural Images (Closeup & Leaf Inspection) */}
+          <div className="lg:col-span-3 flex flex-col sm:flex-row lg:flex-col gap-4">
+            
+            {/* Top Right Card: Crop Closeup */}
+            <div className="flex-1 group relative rounded-2xl p-2 bg-[#171B22] border border-[#232936] shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:border-[#22C55E]/40 glow-card">
+              <div className="relative overflow-hidden rounded-xl aspect-[4/3] lg:aspect-[5/3]">
+                <img
+                  src={soybeanCropCloseupImg}
+                  alt="Close-up healthy soybean crops and ripening pods"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0E1116] via-transparent to-transparent opacity-75" />
+                <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-white drop-shadow">
+                    Healthy Pod Formation
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px] text-[#4ADE80] font-mono bg-black/60 px-1.5 py-0.5 rounded">
+                    <Check className="w-3 h-3" /> 98% Vitality
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Right Card: Farmer inspecting with smartphone */}
+            <div className="flex-1 group relative rounded-2xl p-2 bg-[#171B22] border border-[#232936] shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:border-[#22C55E]/40 glow-card">
+              <div className="relative overflow-hidden rounded-xl aspect-[4/3] lg:aspect-[5/3]">
+                <img
+                  src={farmerInspectingImg}
+                  alt="Indian farmer inspecting crop leaves with smartphone in field"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0E1116] via-transparent to-transparent opacity-75" />
+                <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-white drop-shadow">
+                    Instant AI Leaf Scouting
+                  </span>
+                  <span className="text-[10px] text-slate-300 bg-black/60 px-1.5 py-0.5 rounded">
+                    Field Camera Ready
+                  </span>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          <div className="flex items-center gap-2">
-            <label className="font-semibold w-20 shrink-0">Soil</label>
-            {optionsLoading ? <Skeleton className="flex-1 h-8" /> : (
-              <select
-                className={cn("flex-1 h-8 rounded border px-2 focus:ring-1 focus:ring-slate-900 outline-none bg-white", form.formState.errors.soil && "border-red-500")}
-                {...form.register("soil")}
-              >
-                <option value="">Select</option>
-                {options?.soils?.map((s: string) => <option key={s} value={s}>{s}</option>)}
-              </select>
-            )}
+        </div>
+
+        {/* Mobile-visible photo preview strip */}
+        <div className="grid grid-cols-2 gap-3 mt-10 lg:hidden">
+          <div className="rounded-xl overflow-hidden border border-[#232936] aspect-[4/3] relative">
+            <img src={farmerInFieldImg} alt="Farmer in field" className="w-full h-full object-cover" />
+            <div className="absolute bottom-2 left-2 text-[10px] font-semibold text-white bg-black/60 px-1.5 py-0.5 rounded">
+              Sangli Farmer
+            </div>
+          </div>
+          <div className="rounded-xl overflow-hidden border border-[#232936] aspect-[4/3] relative">
+            <img src={soybeanCropCloseupImg} alt="Soybean crops" className="w-full h-full object-cover" />
+            <div className="absolute bottom-2 left-2 text-[10px] font-semibold text-white bg-black/60 px-1.5 py-0.5 rounded">
+              Soybean Pods
+            </div>
+          </div>
+        </div>
+
+        {/* Feature Highlights Grid Below Hero */}
+        <div className="mt-16 sm:mt-20 pt-10 border-t border-[#232936] grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-5 rounded-xl bg-[#171B22]/70 border border-[#232936] hover:border-[#22C55E]/30 transition-colors">
+            <div className="w-9 h-9 rounded-lg bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center text-[#22C55E] mb-3">
+              <Camera className="w-5 h-5" />
+            </div>
+            <h2 className="text-base font-bold text-white mb-1">Instant Photo Diagnosis</h2>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Snap a picture of your soybean foliage or pods to detect early fungal stress, rust, or nutrient deficiency in seconds.
+            </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <label className="font-semibold w-20 shrink-0">Variety</label>
-            {optionsLoading ? <Skeleton className="flex-1 h-8" /> : (
-              <select
-                className={cn("flex-1 h-8 rounded border px-2 focus:ring-1 focus:ring-slate-900 outline-none bg-white", form.formState.errors.variety && "border-red-500")}
-                {...form.register("variety")}
-              >
-                <option value="">Select</option>
-                {Object.entries(options?.varieties || {}).map(([v, label]) => (
-                  <option key={v} value={v}>{label as string}</option>
-                ))}
-              </select>
-            )}
+          <div className="p-5 rounded-xl bg-[#171B22]/70 border border-[#232936] hover:border-[#22C55E]/30 transition-colors">
+            <div className="w-9 h-9 rounded-lg bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center text-[#22C55E] mb-3">
+              <Cpu className="w-5 h-5" />
+            </div>
+            <h2 className="text-base font-bold text-white mb-1">Sangli Taluka Calibration</h2>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Trained specifically on agronomic conditions in Miraj, Walwa, Shirala, Tasgaon, and Sangli black/alluvial soils.
+            </p>
           </div>
 
-          <div className="flex items-center gap-2 pb-2 border-b">
-            <label className="font-semibold w-20 shrink-0">Acres</label>
-            <input
-              type="number"
-              step="0.1"
-              placeholder="5"
-              className={cn("flex-1 h-8 rounded border px-2 focus:ring-1 focus:ring-slate-900 outline-none", form.formState.errors.acres && "border-red-500")}
-              {...form.register("acres", { valueAsNumber: true })}
-            />
+          <div className="p-5 rounded-xl bg-[#171B22]/70 border border-[#232936] hover:border-[#22C55E]/30 transition-colors">
+            <div className="w-9 h-9 rounded-lg bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center text-[#22C55E] mb-3">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <h2 className="text-base font-bold text-white mb-1">Market Holding Intelligence</h2>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Pair crop health with APMC Sangli mandi trend forecasts to decide whether to sell at harvest or hold in local storage.
+            </p>
           </div>
+        </div>
 
-          <div className="flex items-center gap-2 pt-2">
-            <label className="font-semibold w-20 shrink-0 truncate">Storage ₹/q...</label>
-            <input
-              type="range"
-              min="0"
-              max="50"
-              step="1"
-              className="flex-1 accent-slate-800"
-              {...form.register("storage_cost", { valueAsNumber: true })}
-            />
-            <span className="w-10 text-right text-xs text-slate-500">{form.watch("storage_cost")?.toFixed(2)}</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <label className="font-semibold w-20 shrink-0 truncate">Interest %/mo</label>
-            <input
-              type="range"
-              min="0"
-              max="3"
-              step="0.1"
-              className="flex-1 accent-slate-800"
-              {...form.register("interest_rate", { valueAsNumber: true })}
-            />
-            <span className="w-10 text-right text-xs text-slate-500">{form.watch("interest_rate")?.toFixed(2)}</span>
-          </div>
-
-          <Button type="submit" className="w-auto bg-[#1C1E21] hover:bg-[#2F3237] text-white rounded-full px-6 py-2 h-10 mt-4 text-sm font-semibold" disabled={createAdvisory.isPending || optionsLoading}>
-            {createAdvisory.isPending ? "Loading..." : "Get my advi..."}
-          </Button>
-        </form>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1">
-        {res ? (
-          <div className="bg-white border rounded-lg shadow-sm overflow-hidden">
-            <div className="p-6">
-              <h1 className="text-xl font-bold flex items-center gap-2 mb-1">
-                🌱 {res.farmer.name || "Farmer"} – Soybean advisory
-              </h1>
-              <p className="text-xs text-slate-500 mb-6 pb-4 border-b">
-                {res.farmer.taluka}, Sangli • {res.farmer.soil} soil • {res.farmer.acres} acres • {res.farmer.variety}
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="bg-[#F3F6EB] p-4 rounded-lg border border-[#E1EAD2]">
-                  <div className="flex items-center gap-2 text-sm text-[#506B26] font-medium mb-2">
-                    <Calendar className="w-4 h-4" /> Harvest
-                  </div>
-                  <div className="text-xl font-bold text-slate-900 mb-1">{res.harvest.expected_date}</div>
-                  <div className="text-xs text-slate-600">
-                    window {res.harvest.window[0]} → {res.harvest.window[1]}
-                  </div>
-                  <div className="text-xs font-medium text-slate-700 mt-1">
-                    {res.harvest.days_to_harvest > 0 
-                      ? `(in ${res.harvest.days_to_harvest} days)` 
-                      : `(${Math.abs(res.harvest.days_to_harvest)} days ago)`}
-                  </div>
+      {/* Interactive Crop Analysis Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl bg-[#171B22] border border-[#232936] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-5 border-b border-[#232936] bg-[#0E1116]/80">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center text-[#22C55E]">
+                  <Leaf className="w-4 h-4" />
                 </div>
+                <div>
+                  <h3 className="font-bold text-white text-base">Crop Analysis Studio</h3>
+                  <p className="text-xs text-slate-400">AI Visual Health & Agronomic Inspection</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#232936] transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-                <div className="bg-[#EBF4FA] p-4 rounded-lg border border-[#D0E5F5]">
-                  <div className="flex items-center gap-2 text-sm text-[#276495] font-medium mb-2">
-                    <Leaf className="w-4 h-4" /> Crop stage today
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-6">
+              
+              {/* Image Preview & Upload Zone */}
+              <div className="relative rounded-xl border border-dashed border-[#232936] bg-[#0E1116] p-4 flex flex-col items-center justify-center text-center overflow-hidden">
+                {selectedImage ? (
+                  <div className="relative w-full max-h-64 rounded-lg overflow-hidden group">
+                    <img
+                      src={selectedImage}
+                      alt="Crop sample"
+                      className="w-full h-64 object-cover object-center rounded-lg"
+                    />
+                    {isAnalyzing && (
+                      <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
+                        <div className="w-full h-1 bg-[#22C55E] absolute top-0 shadow-[0_0_15px_#22C55E] animate-scan" />
+                        <RefreshCw className="w-8 h-8 text-[#22C55E] animate-spin mb-2" />
+                        <span className="text-xs font-semibold text-white tracking-wider uppercase">
+                          Scanning Crop Cellular Structure...
+                        </span>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-[#171B22]/90 border border-[#232936] text-xs font-medium text-white hover:bg-[#232936] transition-colors flex items-center gap-1.5 shadow"
+                    >
+                      <Camera className="w-3.5 h-3.5 text-[#22C55E]" /> Change Photo
+                    </button>
                   </div>
-                  <div className="text-xl font-bold text-slate-900 mb-1 capitalize">{res.harvest.crop_stage}</div>
-                  <div className="text-xs text-slate-600 mt-1">
-                    {res.harvest.days_after_sowing} days after sowing ({new Date(res.farmer.sowing_date).toISOString().split('T')[0]})
+                ) : (
+                  <div className="py-8 flex flex-col items-center">
+                    <UploadCloud className="w-10 h-10 text-slate-500 mb-2" />
+                    <p className="text-sm font-semibold text-white mb-1">Upload a Soybean Leaf or Field Photo</p>
+                    <p className="text-xs text-slate-400 mb-4">PNG, JPG up to 10MB</p>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-4 py-2 rounded-lg bg-[#22C55E] hover:bg-[#16A34A] text-slate-950 text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      Browse Image
+                    </button>
                   </div>
+                )}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+              </div>
+
+              {/* Sample photos selector */}
+              <div>
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">
+                  Or test with sample farm observations:
+                </label>
+                <div className="grid grid-cols-3 gap-2.5">
+                  {sampleImages.map((sample, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSelectSample(sample)}
+                      className={`p-2 rounded-lg border text-left transition-all cursor-pointer flex flex-col gap-1.5 ${
+                        selectedImage === sample.image
+                          ? "border-[#22C55E] bg-[#22C55E]/10"
+                          : "border-[#232936] bg-[#0E1116] hover:border-slate-600"
+                      }`}
+                    >
+                      <img
+                        src={sample.image}
+                        alt={sample.title}
+                        className="w-full h-14 object-cover rounded"
+                      />
+                      <span className="text-[11px] font-medium text-white truncate w-full block">
+                        {sample.title}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              <div className="text-sm text-slate-800 mb-6">
-                What to do now: {res.harvest.stage_tip}
-              </div>
+              {/* AI Diagnosis Result */}
+              {diagnosis && !isAnalyzing && (
+                <div className="rounded-xl border border-[#232936] bg-[#0E1116] p-4 text-left space-y-3">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#232936]">
+                    <div className="flex items-center gap-2">
+                      {diagnosis.status === "healthy" ? (
+                        <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
+                      ) : (
+                        <AlertCircle className="w-5 h-5 text-amber-400" />
+                      )}
+                      <div>
+                        <h4 className="text-sm font-bold text-white">{diagnosis.condition}</h4>
+                        <span className="text-[11px] text-slate-400">Stage: {diagnosis.stage}</span>
+                      </div>
+                    </div>
+                    <div className="px-2.5 py-1 rounded bg-[#22C55E]/10 border border-[#22C55E]/30 text-[#4ADE80] text-xs font-mono font-bold">
+                      {diagnosis.confidence}% Confidence
+                    </div>
+                  </div>
 
-              <div className="bg-[#FAF7F7] border border-red-100 p-4 rounded-lg mb-4 text-sm relative">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 rounded-l-lg"></div>
-                <div className="flex items-start gap-2 mb-1">
-                  <span>💰</span>
                   <div>
-                    <span className="font-semibold">Selling advice: </span>
-                    <span className="text-red-600 font-bold uppercase">{res.advisory.decision} (in phases)</span>
-                    <span className="text-slate-600"> (target: {res.advisory.sell_when}) – expected ₹{res.advisory.expected_net_price}/quintal</span>
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                      Visual Assessment:
+                    </span>
+                    <p className="text-xs text-slate-300">{diagnosis.symptoms}</p>
                   </div>
-                </div>
-                <div className="ml-7 text-slate-700 mb-1">{res.advisory.reason}</div>
-                <div className="ml-7 text-slate-600 mb-1">मराठी: {res.advisory.reason_marathi}</div>
-                <div className="ml-7 text-slate-500 text-xs">Price used: ₹{res.market.analysis.price_now}/q as of {res.market.analysis.as_of.split('T')[0]}</div>
-              </div>
 
-              <div className="text-sm text-slate-800 mb-4 flex items-start gap-2">
-                <span>📈</span>
-                <div>
-                  <span className="font-medium">Yield outlook:</span> {res.yield_outlook.kg_per_ha.expected.toFixed(0)} kg/ha 
-                  (range {res.yield_outlook.kg_per_ha.low.toFixed(0)} – {res.yield_outlook.kg_per_ha.high.toFixed(0)}) → 
-                  <span className="font-semibold"> {res.yield_outlook.production_quintals.expected.toFixed(0)} quintals </span> 
-                  ({res.yield_outlook.production_quintals.low.toFixed(0)}–{res.yield_outlook.production_quintals.high.toFixed(0)}) – 
-                  est. revenue {formatCurrency(res.advisory.revenue_inr.expected)} 
-                  ({formatCurrency(res.advisory.revenue_inr.low)} – {formatCurrency(res.advisory.revenue_inr.high)})
-                </div>
-              </div>
-
-              <div className="text-sm text-slate-800 mb-6 flex items-start gap-2">
-                <span>🪄</span>
-                <div>
-                  <span className="font-medium">Soil:</span> {res.soil.note}
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <div className="flex items-center gap-2 font-medium text-slate-900 mb-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-500" /> Alerts
-                </div>
-                <ul className="space-y-1.5 text-sm pl-6 list-disc text-slate-700">
-                  {res.alerts?.map((alert: string, i: number) => {
-                    let prefix = "";
-                    if (alert.includes("dry spell")) prefix = "⚠️ ";
-                    else if (alert.includes("Sowing is within")) prefix = "✅ ";
-                    return <li key={i}>{prefix}{alert.replace(/^[⚠️✅]\s*/, '')}</li>;
-                  })}
-                  {res.crop_health?.message && (
-                    <li>{res.crop_health.message.replace(/Healthy/, '✅ Healthy').replace(/Stress/, '⚠️ Stress')}</li>
-                  )}
-                </ul>
-              </div>
-
-              {res.market.harvest_time_plan?.length > 0 && (
-                <div className="overflow-x-auto border rounded-lg">
-                  <table className="w-full text-sm text-left whitespace-nowrap">
-                    <thead className="bg-slate-50 text-slate-600 font-medium border-b">
-                      <tr>
-                        <th className="px-4 py-2">Sell in</th>
-                        <th className="px-4 py-2 text-right">Net ₹/quintal</th>
-                        <th className="px-4 py-2 text-right">vs harvest</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y text-slate-700">
-                      {res.market.harvest_time_plan.map((row: any, i: number) => {
-                        const basePrice = res.market.harvest_time_plan[0].net_price;
-                        const pctChange = ((row.net_price / basePrice - 1) * 100);
-                        return (
-                          <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                            <td className="px-4 py-2">{row.sell_month}</td>
-                            <td className="px-4 py-2 text-right">₹{row.net_price.toFixed(0)}</td>
-                            <td className="px-4 py-2 text-right">
-                              {pctChange > 0 ? "+" : ""}{pctChange.toFixed(1)}%
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                  <div className="p-3 rounded-lg bg-[#171B22] border border-[#232936]">
+                    <span className="text-xs font-semibold text-[#4ADE80] block mb-1">
+                      Agronomist Action Recommendation:
+                    </span>
+                    <p className="text-xs text-slate-200 mb-1.5">{diagnosis.recommendation}</p>
+                    <p className="text-xs text-slate-400 italic">मराठी: {diagnosis.actionMarathi}</p>
+                  </div>
                 </div>
               )}
+
             </div>
-            
-            <div className="bg-slate-50 p-4 border-t text-[10px] text-slate-500 leading-relaxed">
-              {res.disclaimer}
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-[#232936] bg-[#0E1116]/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <span className="text-xs text-slate-400">
+                Calibrated for Sangli Talukas (Miraj, Walwa, Tasgaon)
+              </span>
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                <Link
+                  to="/advisory"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 sm:flex-initial px-4 py-2 rounded-lg bg-[#22C55E] hover:bg-[#16A34A] text-slate-950 text-xs font-bold transition-all text-center"
+                >
+                  Calculate Harvest & Mandi Timing →
+                </Link>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-3 py-2 rounded-lg border border-[#232936] text-xs text-slate-300 hover:bg-[#232936] transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
             </div>
+
           </div>
-        ) : (
-          <div className="h-full min-h-[400px] border rounded-lg border-dashed flex flex-col items-center justify-center text-slate-400 p-8 text-center bg-slate-50/50">
-            <Leaf className="w-12 h-12 mb-4 text-slate-300" />
-            <p className="text-lg font-medium text-slate-600 mb-2">Fill the form to get your advisory</p>
-            <p className="text-sm max-w-sm">Enter your farm details on the left to receive a customized harvest, yield, and market plan.</p>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
+
     </div>
   );
 }

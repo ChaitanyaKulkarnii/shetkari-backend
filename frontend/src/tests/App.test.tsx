@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Result from '../pages/Result';
 import Home from '../pages/Home';
+import AdvisoryPage from '../pages/AdvisoryPage';
 import { Alert } from '../components/ui';
 
 // Mock i18n
@@ -16,7 +17,7 @@ vi.mock('react-i18next', () => ({
       if (key === 'result.decision.hold') return 'HOLD';
       return key;
     },
-    i18n: { language: 'en' },
+    i18n: { language: 'en', changeLanguage: vi.fn() },
   }),
 }));
 
@@ -71,9 +72,18 @@ describe('Error Rendering', () => {
   });
 });
 
-describe('Home Form Validation', () => {
-  it('renders form', () => {
+describe('Landing Page Hero', () => {
+  it('renders primary CTA button Analyze Your Crop and headlines', () => {
     renderWithProviders(<Home />);
-    expect(screen.getByText('form.submit')).toBeInTheDocument();
+    const ctaButtons = screen.getAllByRole('button', { name: /Analyze Your Crop/i });
+    expect(ctaButtons.length).toBeGreaterThan(0);
+    expect(screen.getByText(/Get smart, personalized crop insights powered by AI/i)).toBeInTheDocument();
+  });
+});
+
+describe('Advisory Page Form', () => {
+  it('renders advisory calculation form', () => {
+    renderWithProviders(<AdvisoryPage />);
+    expect(screen.getByRole('button', { name: /Calculate Farm Advisory/i })).toBeInTheDocument();
   });
 });
