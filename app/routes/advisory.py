@@ -9,6 +9,7 @@ router = APIRouter()
 
 
 @router.post("/advisory", response_model=Dict[str, Any])
+@router.post("/crop/analyze", response_model=Dict[str, Any])
 def create_advisory(payload: AdvisoryRequest):
     """
     Generates tailored harvest, yield outlook, and market storage advisory for a soybean farmer.

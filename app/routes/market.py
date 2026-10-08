@@ -9,6 +9,7 @@ router = APIRouter()
 
 
 @router.get("/market", response_model=Dict[str, Any])
+@router.get("/market/analysis", response_model=Dict[str, Any])
 def get_market_report(
     storage: float = Query(
         default=15.0,
