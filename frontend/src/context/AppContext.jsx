@@ -41,6 +41,9 @@ export function AppProvider({ children }) {
   const [uiData, setUiData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [language, setLanguage] = useState(() => {
+    return localStorage.getItem('krishilens_lang') || 'en';
+  });
 
   // Initial load: fetch options, health, market & trigger baseline advisory
   useEffect(() => {
@@ -70,10 +73,13 @@ export function AppProvider({ children }) {
           setModelCard(cardRes.value);
         }
 
+        // Parse taluka from profile location
+        const profileTaluka = profile?.location ? profile.location.split(',')[0].trim() : "Miraj";
+
         // Run default baseline advisory for Sangli
         const defaultReq = {
           name: profile?.name || "Ramesh Patil",
-          taluka: "Miraj",
+          taluka: profileTaluka,
           crop: "Soybean",
           sowing_date: "2026-06-20",
           soil: "Medium black",
@@ -101,16 +107,26 @@ export function AppProvider({ children }) {
     setLoading(true);
     setError(null);
     try {
+      const rawReq = uiData?.raw?.request || {};
+      
+      const parsedAcres = Number(formValues.acres) || Number((formValues.area || '').toString().split(' ')[0]) || Number(rawReq.acres) || 5;
+      const parsedStorageCost = formValues.storage_cost !== undefined ? Number(formValues.storage_cost) : (rawReq.storage_cost ?? 15);
+      
+      let parsedInterest = formValues.interest_rate !== undefined ? Number(formValues.interest_rate) : (rawReq.interest_rate ?? 0.01);
+      if (parsedInterest > 0.1 && parsedInterest >= 1) { // Convert percentage (e.g. 1.0) to decimal (0.01)
+        parsedInterest = parsedInterest / 100;
+      }
+
       const payload = {
-        name: formValues.name || profile.name || "Farmer",
-        taluka: formValues.taluka || "Miraj",
-        crop: formValues.crop || "Soybean",
-        sowing_date: formValues.sowing_date || formValues.sowingDate || "2026-06-20",
-        soil: formValues.soil || "Medium black",
-        variety: formValues.variety || "medium",
-        acres: Number(formValues.acres || formValues.area || 5),
-        storage_cost: Number(formValues.storage_cost ?? 15),
-        interest_rate: Number(formValues.interest_rate ?? 1) > 0.1 ? Number(formValues.interest_rate) / 100 : Number(formValues.interest_rate ?? 0.01)
+        name: formValues.name || profile.name || rawReq.name || "Farmer",
+        taluka: formValues.taluka || rawReq.taluka || "Miraj",
+        crop: formValues.crop || rawReq.crop || "Soybean",
+        sowing_date: formValues.sowing_date || formValues.sowingDate || rawReq.sowing_date || "2026-06-20",
+        soil: formValues.soil || rawReq.soil || "Medium black",
+        variety: formValues.variety || rawReq.variety || "medium",
+        acres: parsedAcres,
+        storage_cost: parsedStorageCost,
+        interest_rate: parsedInterest
       };
 
       const res = await createAdvisory(payload);
@@ -157,6 +173,11 @@ export function AppProvider({ children }) {
         uiData,
         loading,
         error,
+        language,
+        setLanguage: (lang) => {
+          localStorage.setItem('krishilens_lang', lang);
+          setLanguage(lang);
+        },
         runAdvisory,
         reportHarvest
       }}

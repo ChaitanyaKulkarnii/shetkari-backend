@@ -129,7 +129,7 @@ export function transformAdvisoryData(apiData) {
       decision: apiData.advisory?.decision || 'SELL AT HARVEST',
       signal: apiData.advisory?.decision === 'HOLD' ? 'HOLD IN WAREHOUSE' : 'SELL AT HARVEST',
       sellWhen: apiData.advisory?.sell_when || 'Harvest Period',
-      expectedNetPrice: apiData.advisory?.expected_net_price || 6080,
+      expectedNetPrice: apiData.advisory?.expected_net_price || 0,
       reason: apiData.advisory?.reason,
       reasonMarathi: apiData.advisory?.reason_marathi,
       revenueInr: apiData.advisory?.revenue_inr?.expected || 0,
@@ -141,16 +141,20 @@ export function transformAdvisoryData(apiData) {
       momentum: apiData.market?.analysis?.momentum || 'Favorable',
       marketNotes: apiData.market?.analysis?.market_notes || '',
       asOf: apiData.market?.analysis?.as_of || '2026-09-24',
-      harvestTimePlan: apiData.market?.harvest_time_plan || []
+      harvestTimePlan: apiData.market?.harvest_time_plan || [],
+      predictedBestPrice: apiData.predicted_best_price || null,
+      predictedPriceNotes: apiData.predicted_price_notes || ''
     },
     cropHealth: {
       status: apiData.crop_health?.status || 'Healthy',
       message: apiData.crop_health?.message || 'Healthy soybean foliage',
       now: apiData.crop_health?.now || 0.61
     },
+    weatherSummary: apiData.weather_summary || { avg_temp: 29, humidity: 68, rainfall_7d: 18 },
     soil: apiData.soil || { type: 'Medium black', note: 'Good water retention during pod filling.' },
     alerts: apiData.alerts || [],
     markets: dynamicMarkets,
-    factors: dynamicFactors
+    factors: dynamicFactors,
+    chartData: apiData.chart_data || null
   };
 }

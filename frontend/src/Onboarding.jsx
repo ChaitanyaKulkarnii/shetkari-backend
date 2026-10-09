@@ -124,7 +124,108 @@ const copy = {
     readyDecision: 'विक्री सल्ला',
     edit: 'माहिती बदला',
     workspace: 'डॅशबोर्ड उघडा',
-    readyDisclaimer: 'सांगली जिल्ह्यातील तालुक्यांसाठी तयार केलेले मॉडेल.'
+    readyDisclaimer: 'सांगली जिल्ह्यातील तालुक्यांसाठी तयार केलेले मॉडेल.',
+    varieties: {
+      'early': 'लवकर (९० दिवस, उदा. JS 93-05)',
+      'medium': 'मध्यम (१०० दिवस, उदा. JS 335)',
+      'late': 'उशिरा (११० दिवस, उदा. KDS 726)'
+    },
+    soils: {
+      'Medium black': 'मध्यम काळी',
+      'Deep black (heavy)': 'खोल काळी (जड)',
+      'Alluvial / sandy loam': 'गाळाची / वाळू मिश्रित',
+      'Shallow / murum': 'हलकी / मुरमाड',
+      'Red / laterite': 'लाल / जांभी'
+    },
+    talukas: {
+      'Miraj': 'मिरज',
+      'Tasgaon': 'तासगाव',
+      'Atpadi': 'आटपाडी',
+      'Jath': 'जत',
+      'Kadegaon': 'कडेगाव',
+      'Kavathe Mahankal': 'कवठे महांकाळ',
+      'Khanapur': 'खानापूर',
+      'Palus': 'पलूस',
+      'Shirala': 'शिराळा',
+      'Walwa': 'वाळवा'
+    }
+  },
+  hi: {
+    logo: 'फसल-से-बाज़ार निर्णय सहायता',
+    signout: 'साइन आउट',
+    welcomeKicker: 'AI-आधारित कृषि बुद्धिमत्ता',
+    welcomeTitle: 'अपनी फसल का विश्लेषण करें। कटाई की योजना बनाएं। होशियारी से बेचें।',
+    welcomeBody: 'KrishiLens महाराष्ट्र के सोयाबीन किसानों के लिए अनुकूलित कृषि बुद्धिमत्ता, उपज पूर्वानुमान और सांगली मंडी के समय की जानकारी देता है।',
+    analyze: 'अपनी फसल का विश्लेषण करें',
+    time: 'लगभग 2 मिनट • सांगली जिले के लिए कैलिब्रेटेड',
+    step1: 'फसल की स्थिति समझें',
+    step1d: 'रीयल-टाइम वानस्पतिक शक्ति और विकास चरण की जानकारी।',
+    step2: 'कटाई की योजना बनाएं',
+    step2d: 'कैलिब्रेटेड कटाई की तिथियां, उपज सीमाएं और उत्पादन (क्विंटल में)।',
+    step3: 'बाज़ार विकल्पों की तुलना करें',
+    step3d: 'APMC कीमतें, भंडारण लागत बनाम होल्डिंग लाभ, और बिक्री के संकेत।',
+    trust: '2017–2026 सांगली खरीफ और APMC मंडी रुझानों पर प्रशिक्षित',
+    back: 'पीछे',
+    formKicker: 'खेत प्रोफ़ाइल और ML इनपुट',
+    formTitle: 'अपने खेत का विवरण दर्ज करें',
+    formBody: 'अपनी तहसील के लिए सोयाबीन ML मॉडल चलाने के लिए फसल और मिट्टी के पैरामीटर प्रदान करें।',
+    farmLocation: 'खेत का स्थान',
+    farmPlaceholder: 'उदा. मिरज, सांगली',
+    taluka: 'सांगली में तहसील',
+    talukaPlaceholder: 'तहसील चुनें',
+    crop: 'चुनी गई फसल',
+    soil: 'मिट्टी का प्रकार',
+    variety: 'सोयाबीन किस्म',
+    acres: 'खेत का आकार (एकड़)',
+    sowingDate: 'बुवाई की तारीख',
+    storageCost: 'भंडारण लागत (₹/क्विंटल/माह)',
+    interestRate: 'ब्याज दर (%/माह)',
+    chooseCrop: 'फसल चुनें',
+    soybean: 'सोयाबीन',
+    liveLocation: 'GPS निर्देशांक',
+    liveHelp: 'खेत का अक्षांश और देशांतर जांचें',
+    locate: 'स्थान जांचें',
+    locating: 'खोजा जा रहा है...',
+    located: 'GPS लॉक हो गया',
+    denied: 'स्थान पहुंच से इनकार किया गया।',
+    unavailable: 'GPS अनुपलब्ध है।',
+    formNote: 'आपके खेत के पैरामीटर सीधे हमारे सोयाबीन ML मॉडल पर चलते हैं।',
+    submit: 'फसल विश्लेषण शुरू करें',
+    analyzing: 'सोयाबीन ML मॉडल चल रहा है...',
+    readyKicker: 'AI सलाह तैयार है',
+    readyTitle: 'आपकी कृषि बुद्धिमत्ता तैयार है',
+    readyBody: 'हमने सांगली जिले के कृषि-जलवायु वक्र और APMC मंडी पूर्वानुमानों के साथ आपके खेत के इनपुट का विश्लेषण किया है।',
+    readyCrop: 'फसल की स्वास्थ्य स्थिति',
+    readyYield: 'संभावित उपज',
+    readyHarvest: 'कटाई का समय',
+    readyDecision: 'बिक्री रणनीति',
+    edit: 'खेत का विवरण बदलें',
+    workspace: 'खेत का कार्यस्थान खोलें',
+    readyDisclaimer: '2017–2026 APMC और मौसम डेटा का उपयोग करके सांगली जिले की तहसीलों के लिए कैलिब्रेट किया गया।',
+    varieties: {
+      'early': 'जल्दी (90 दिन, उदा. JS 93-05)',
+      'medium': 'मध्यम (100 दिन, उदा. JS 335)',
+      'late': 'देर (110 दिन, उदा. KDS 726)'
+    },
+    soils: {
+      'Medium black': 'मध्यम काली',
+      'Deep black (heavy)': 'गहरी काली (भारी)',
+      'Alluvial / sandy loam': 'जलोढ़ / रेतीली दोमट',
+      'Shallow / murum': 'हल्की / मुरुम',
+      'Red / laterite': 'लाल / लेटराइट'
+    },
+    talukas: {
+      'Miraj': 'मिरज',
+      'Tasgaon': 'तासगांव',
+      'Atpadi': 'आटपाडी',
+      'Jath': 'जत',
+      'Kadegaon': 'कड़ेगांव',
+      'Kavathe Mahankal': 'कवठे महांकाल',
+      'Khanapur': 'खानापुर',
+      'Palus': 'पलूस',
+      'Shirala': 'शिराला',
+      'Walwa': 'वाळवा'
+    }
   }
 }
 
@@ -327,7 +428,7 @@ export function CropIntake({ language, onBack, onSubmit }) {
                   onChange={e => setTaluka(e.target.value)}
                 >
                   {options?.talukas?.map(tal => (
-                    <option key={tal} value={tal}>{tal}</option>
+                    <option key={tal} value={tal}>{t.talukas?.[tal] || tal}</option>
                   ))}
                 </select>
                 <ChevronDown size={15} className="select-arrow" />
@@ -373,7 +474,7 @@ export function CropIntake({ language, onBack, onSubmit }) {
                   onChange={e => setSoil(e.target.value)}
                 >
                   {options?.soils?.map(s => (
-                    <option key={s} value={s}>{s}</option>
+                    <option key={s} value={s}>{t.soils?.[s] || s}</option>
                   ))}
                 </select>
                 <ChevronDown size={15} className="select-arrow" />
@@ -391,9 +492,9 @@ export function CropIntake({ language, onBack, onSubmit }) {
                   value={variety} 
                   onChange={e => setVariety(e.target.value)}
                 >
-                  <option value="early">Early (~90 days, e.g. JS 93-05)</option>
-                  <option value="medium">Medium (~100 days, e.g. JS 335, Phule Kalyani)</option>
-                  <option value="late">Late (~110 days, e.g. KDS 726 Phule Sangam)</option>
+                  <option value="early">{t.varieties?.['early'] || 'Early (~90 days, e.g. JS 93-05)'}</option>
+                  <option value="medium">{t.varieties?.['medium'] || 'Medium (~100 days, e.g. JS 335, Phule Kalyani)'}</option>
+                  <option value="late">{t.varieties?.['late'] || 'Late (~110 days, e.g. KDS 726 Phule Sangam)'}</option>
                 </select>
                 <ChevronDown size={15} className="select-arrow" />
               </div>

@@ -5835,3 +5835,131 @@ select:focus-visible {
   color: var(--color-text-primary);
 }
 
+/* ==========================================================================
+   GLOBAL MOBILE RESPONSIVENESS OVERRIDES
+   ========================================================================== */
+@media (max-width: 960px) {
+  .main-shell {
+    padding: 16px !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+  .sidebar {
+    transform: translateX(-100%) !important;
+    display: none !important;
+  }
+  .sidebar.sidebar-open {
+    transform: translateX(0) !important;
+    display: flex !important;
+  }
+  .mobile-menu {
+    display: flex !important;
+  }
+  .topbar {
+    padding: 0 16px !important;
+    gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .crumb span, .crumb svg {
+    display: none !important;
+  }
+  .live-label {
+    display: none !important;
+  }
+  .top-actions {
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Enforce single column for main layout grids */
+  .main-grid,
+  .lower-grid,
+  .market-chart-grid,
+  .selling-detail-grid,
+  .crop-tech-grid,
+  .analysis-grid,
+  .explanation-grid,
+  .limitations-grid,
+  .results-detail-grid,
+  .market-summary-grid,
+  .metric-grid,
+  .calc-grid,
+  .feedback-form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Make sure boxes take full width */
+  .panel, 
+  .interactive-calculator-card, 
+  .marathi-advisory-card, 
+  .selling-banner {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Responsive typography for mobile */
+  .hero-metric b, 
+  .insight-value,
+  .yield-hero-main h2 {
+    font-size: 24px !important;
+  }
+  
+  .flow-brand b,
+  .selling-copy h2,
+  .insight-group h3 {
+    font-size: 18px !important;
+  }
+
+  /* Chart & Graph containers */
+  .recharts-wrapper {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: auto;
+  }
+  .chart-box {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Flex utilities */
+  .flex-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  
+  /* Buttons */
+  .button, .flow-primary, .calc-control button {
+    width: 100% !important;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Tables */
+  .holding-table-wrap {
+    max-width: calc(100vw - 32px);
+    overflow-x: auto;
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extreme mobile optimization */
+  .page-container {
+    padding: 10px !important;
+  }
+  .topbar {
+    padding: 12px 10px !important;
+  }
+  .yield-hero {
+    padding: 16px !important;
+  }
+}
+
+

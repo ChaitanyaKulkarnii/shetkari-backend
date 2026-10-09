@@ -148,6 +148,7 @@ class YieldModel:
 
 class CropHealth:
     def fit(self, n):
+        self.n = n.copy()
         yr = int(n.year.max()); cur, hist = n[n.year == yr], n[n.year < yr]; recs = []
         for r in cur.itertuples():
             h = hist[(hist.taluka == r.taluka) & ((hist.doy - r.doy).abs() <= 10)]

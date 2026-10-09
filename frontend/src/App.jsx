@@ -242,7 +242,7 @@ function ChartTip({ active, payload, label }) {
 
 function NDVIChart({ compact = false }) {
   const { uiData } = useApp()
-  const chartData = defaultNdvi
+  const chartData = uiData?.chartData?.ndvi || defaultNdvi
   return (
     <div className={`chart-area ${compact ? 'chart-compact' : ''}`}>
       <ResponsiveContainer width="100%" height="100%">
@@ -330,6 +330,63 @@ function HarvestTimeline({ stageTip }) {
   )
 }
 
+function DateSimulator() {
+  const { uiData, runAdvisory, loading, language } = useApp()
+  const farm = uiData?.farm || defaultFarm
+  const [sowingDate, setSowingDate] = useState(farm.sowing || '2026-06-20')
+
+  const t = {
+    en: { title: 'Plan Ahead: Simulate Alternate Sowing Date Benefits', desc: 'Select a custom sowing date to instantly forecast changes in crop condition, harvest timing, yield benefits, and optimal market prices. The ML model will guide you on the estimated benefits or risks.', btn: 'Calculate Benefits', loading: 'Simulating...' },
+    mr: { title: 'पुढचे नियोजन: वेगळ्या पेरणीच्या तारखेचे फायदे तपासा', desc: 'पेरणीची नवीन तारीख निवडा आणि पिकाची स्थिती, कापणीची वेळ, उत्पादनातील फायदे आणि सर्वोत्तम बाजारभाव कसा बदलेल याचा लगेच अंदाज घ्या.', btn: 'फायदे तपासा', loading: 'तपासत आहे...' },
+    hi: { title: 'आगे की योजना: अलग बुवाई तिथि के लाभ देखें', desc: 'अपनी फसल की स्थिति, कटाई के समय, उपज लाभ और सर्वोत्तम बाजार कीमतों में बदलाव का तुरंत अनुमान लगाने के लिए एक कस्टम बुवाई तिथि चुनें।', btn: 'लाभ की गणना करें', loading: 'गणना हो रही है...' }
+  }
+  const l = t[language] || t.en
+
+  const handleSimulate = async () => {
+    try {
+      await runAdvisory({
+        ...farm,
+        sowing_date: sowingDate,
+        acres: parseFloat(farm.area?.split(' ')[0] || 5),
+        variety: farm.variety
+      })
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  return (
+    <div className="panel p-4 mb-5 bg-gradient-to-r from-[#F4F8F2] to-[#FFF] border-[#C8E6C9]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h4 className="text-sm font-bold text-[#1B281C] flex items-center gap-2">
+            <CalendarDays size={16} className="text-[#42873D]" />
+            {l.title}
+          </h4>
+          <p className="text-xs text-[#51624F] mt-1 leading-relaxed max-w-3xl">
+            {l.desc}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <input 
+            type="date" 
+            className="border border-[#DCE4D6] rounded px-3 py-1.5 text-sm bg-white font-medium text-[#1B281C]"
+            value={sowingDate}
+            onChange={e => setSowingDate(e.target.value)}
+          />
+          <button 
+            className="button button-dark !py-1.5 !px-4 text-xs cursor-pointer whitespace-nowrap" 
+            onClick={handleSimulate}
+            disabled={loading || sowingDate === farm.sowing}
+          >
+            {loading ? l.loading : l.btn}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ==========================================================================
    PAGE 1: DASHBOARD
    ========================================================================== */
@@ -342,6 +399,7 @@ function Dashboard({ setPage, displayName, onEditFarm }) {
   const marketAnalysis = uiData?.marketAnalysis || {}
   const cropHealth = uiData?.cropHealth || {}
   const alerts = uiData?.alerts || []
+  const weatherSummary = uiData?.weatherSummary || { avg_temp: 29, humidity: 68, rainfall_7d: 18 }
 
   return (
     <>
@@ -376,12 +434,22 @@ function Dashboard({ setPage, displayName, onEditFarm }) {
       {/* Backend Live Alerts Strip */}
       {alerts && alerts.length > 0 && (
         <div className="dash-alerts-banner">
-          {alerts.map((alt, i) => (
-            <div key={i} className="dash-alert-item alert-amber">
-              <AlertTriangle size={15} className="text-amber-700 flex-shrink-0" />
-              <span><b>Agronomic Alert:</b> {alt}</span>
-            </div>
-          ))}
+          {alerts.map((alt, i) => {
+            const isCritical = alt.includes('not suitable');
+            return (
+              <div key={i} className={`dash-alert-item ${isCritical ? 'bg-red-50 text-red-800 border-l-4 border-red-600' : 'alert-amber'}`}>
+                {isCritical ? (
+                  <AlertTriangle size={18} className="text-red-700 flex-shrink-0" />
+                ) : (
+                  <AlertTriangle size={15} className="text-amber-700 flex-shrink-0" />
+                )}
+                <span className={isCritical ? 'font-medium' : ''}>
+                  {isCritical ? <b>CRITICAL ALERT: </b> : <b>Agronomic Alert: </b>}
+                  {alt}
+                </span>
+              </div>
+            );
+          })}
           {harvest.stageTip && (
             <div className="dash-alert-item">
               <Leaf size={15} className="text-emerald-700 flex-shrink-0" />
@@ -415,9 +483,9 @@ function Dashboard({ setPage, displayName, onEditFarm }) {
           tone="amber"
         />
         <Metric
-          label="Market reference"
-          value={marketAnalysis.priceNow ? `₹${marketAnalysis.priceNow.toLocaleString('en-IN')}` : '₹6,080'}
-          sub={`Sangli APMC · ${marketAnalysis.momentum || 'Active'}`}
+          label="Est. total revenue"
+          value={sellingSignal.revenueInr ? `₹${Math.round(sellingSignal.revenueInr).toLocaleString('en-IN')}` : '—'}
+          sub={`Based on ${yieldInfo.productionQuintals} · Net of costs`}
           icon={TrendingUp}
           tone="teal"
         />
@@ -468,12 +536,12 @@ function Dashboard({ setPage, displayName, onEditFarm }) {
             </div>
             <div>
               <span>Est. net price</span>
-              <b>₹{(sellingSignal.expectedNetPrice || marketAnalysis.priceNow || 6080).toLocaleString('en-IN')} <small>/ qtl</small></b>
+              <b>₹{(sellingSignal.expectedNetPrice || marketAnalysis.priceNow || 0).toLocaleString('en-IN')} <small>/ qtl</small></b>
             </div>
           </div>
           <div className="confidence-row">
             <Confidence />
-            <span>Est. total revenue: <b>₹{(sellingSignal.revenueInr || 205791).toLocaleString('en-IN')}</b></span>
+            <span>Est. total revenue: <b>₹{(sellingSignal.revenueInr || 0).toLocaleString('en-IN')}</b></span>
           </div>
           <div className="signal-reason">
             <span className="reason-check"><Check size={12} /></span>
@@ -513,19 +581,19 @@ function Dashboard({ setPage, displayName, onEditFarm }) {
             <div>
               <span className="weather-icon rain"><CloudRain size={16} /></span>
               <small>Rainfall · 7 days</small>
-              <strong>18 <em>mm</em></strong>
+              <strong>{weatherSummary.rainfall_7d} <em>mm</em></strong>
               <i className="good">Within seasonal range</i>
             </div>
             <div>
               <span className="weather-icon temp"><Sun size={16} /></span>
               <small>Avg. temperature</small>
-              <strong>29 <em>°C</em></strong>
+              <strong>{weatherSummary.avg_temp} <em>°C</em></strong>
               <i>Typical for pod filling</i>
             </div>
             <div>
               <span className="weather-icon humidity"><Droplets size={16} /></span>
               <small>Humidity</small>
-              <strong>68 <em>%</em></strong>
+              <strong>{weatherSummary.humidity} <em>%</em></strong>
               <i>Favorable conditions</i>
             </div>
           </div>
@@ -596,6 +664,8 @@ function CropPage() {
         sub="A field-level view of crop condition, growth stage, soil type and weather observations."
         right={<span className="button button-outline"><MapPin size={15} /> {farm.location}</span>}
       />
+
+      <DateSimulator />
 
       <div className="crop-overview panel">
         <div className="crop-overview-main">
@@ -717,7 +787,7 @@ function CropPage() {
         </div>
         <div className="weather-chart">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={weather} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+            <ComposedChart data={uiData?.chartData?.weather || weather} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
               <CartesianGrid vertical={false} stroke="#e9ece5" strokeDasharray="3 4" />
               <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fill: '#92998f', fontSize: 10 }} dy={8} />
               <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#92998f', fontSize: 10 }} />
@@ -777,6 +847,8 @@ function YieldPage() {
         sub="Understand the expected yield range, harvest timing window, and submit ground feedback."
         right={<Pill type="success">CALIBRATED FORECAST</Pill>}
       />
+
+      <DateSimulator />
 
       <div className="yield-hero panel">
         <div className="yield-hero-main">
@@ -1001,11 +1073,14 @@ function MarketPage() {
   const [query, setQuery] = useState('')
 
   const marketAnalysis = uiData?.marketAnalysis || {}
-  const currentPrice = marketAnalysis.priceNow || 6080
+  const currentPrice = marketAnalysis.priceNow || 0
   const seasonality = marketReport?.analysis?.seasonality || {}
   const arrivals = marketReport?.analysis?.arrivals || {}
 
-  const data = range === '7 days' ? prices7 : range === '30 days' ? prices30 : [...prices30, ...prices30.map((x, i) => ({ ...x, day: `${i + 1} Aug`, price: x.price - 200 + Math.round(Math.sin(i) * 100) }))]
+  const p7 = uiData?.chartData?.prices7?.length ? uiData.chartData.prices7 : prices7;
+  const p30 = uiData?.chartData?.prices30?.length ? uiData.chartData.prices30 : prices30;
+  const future = uiData?.chartData?.future_prices?.map(x => ({ day: x.month, price: x.price })) || [];
+  const data = range === '7 days' ? p7 : range === '30 days' ? p30 : range === 'Future Predictions' ? future : [...p30, ...p30.map((x, i) => ({ ...x, day: `${i + 1} Aug`, price: x.price - 200 + Math.round(Math.sin(i) * 100) }))]
 
   return (
     <>
@@ -1015,6 +1090,8 @@ function MarketPage() {
         sub="Live modal prices, 12-month percentile levels, and historical seasonality."
         right={<span className="button button-outline"><MapPin size={15} /> Sangli APMC</span>}
       />
+
+      <DateSimulator />
 
       <div className="market-summary-grid">
         <div className="market-current panel">
@@ -1049,6 +1126,16 @@ function MarketPage() {
         </div>
       )}
 
+      {marketAnalysis.predictedBestPrice && (
+        <div className="p-4 mb-4 rounded-xl bg-[#E8F5E9] border border-[#C8E6C9] text-sm text-[#2E7D32] flex items-center gap-3">
+          <TrendingUp size={20} className="flex-shrink-0" />
+          <div>
+            <b>Predicted Best Upcoming Price: ₹{marketAnalysis.predictedBestPrice}/qtl</b>
+            <p className="mt-1 opacity-90">{marketAnalysis.predictedPriceNotes}</p>
+          </div>
+        </div>
+      )}
+
       <div className="market-chart-grid">
         <section className="panel">
           <div className="panel-head">
@@ -1058,7 +1145,7 @@ function MarketPage() {
               <p>Indicative market trend · ₹ per quintal</p>
             </div>
             <div className="segmented">
-              {['7 days', '30 days', 'Historical'].map(x => (
+              {['7 days', '30 days', 'Historical', 'Future Predictions'].map(x => (
                 <button key={x} className={range === x ? 'selected' : ''} onClick={() => setRange(x)}>{x}</button>
               ))}
             </div>
@@ -1163,6 +1250,13 @@ function SellingPage() {
   // Monthly Holding Simulation Plan from Backend
   const harvestPlan = rawAdvisory?.market?.harvest_time_plan || []
 
+  const t = {
+    en: { simEyebrow: 'INTERACTIVE CARRYING COST SIMULATOR', simTitle: 'Adjust Your Real Storage & Loan Parameters', farmSize: 'Farm size:', storageLbl: 'Warehouse Storage Cost (₹ / quintal / month)', interestLbl: 'Interest / Finance Rate (% per month)', calcBtn: 'Recalculate Strategy', calcLoad: 'Calculating...' },
+    mr: { simEyebrow: 'साठवणूक खर्च सिमुलेटर', simTitle: 'तुमचा साठवणूक आणि व्याजदर समायोजित करा', farmSize: 'शेताचे क्षेत्र:', storageLbl: 'गुदाम साठवणूक खर्च (₹ / क्विंटल / महिना)', interestLbl: 'व्याज दर (% प्रति महिना)', calcBtn: 'पुन्हा गणना करा', calcLoad: 'गणना करत आहे...' },
+    hi: { simEyebrow: 'भंडारण लागत सिम्युलेटर', simTitle: 'अपने भंडारण और ऋण मापदंडों को समायोजित करें', farmSize: 'खेत का आकार:', storageLbl: 'गोदाम भंडारण लागत (₹ / क्विंटल / माह)', interestLbl: 'ब्याज दर (% प्रति माह)', calcBtn: 'रणनीति की पुनर्गणना करें', calcLoad: 'गणना हो रही है...' }
+  }
+  const l = t[uiData?.language || localStorage.getItem('krishilens_lang') || 'en'] || t.en
+
   return (
     <>
       <Heading
@@ -1171,6 +1265,8 @@ function SellingPage() {
         sub="An explainable view of harvest timing, carrying costs, and holding vs selling decisions."
         right={<Confidence />}
       />
+
+      <DateSimulator />
 
       {/* Selling Strategy Banner */}
       <div className="selling-banner">
@@ -1203,17 +1299,17 @@ function SellingPage() {
       <div className="interactive-calculator-card">
         <div className="flex items-center justify-between pb-3 border-b border-[#E2E7DD] mb-3">
           <div>
-            <span className="eyebrow text-[#4A6F3E] font-bold">INTERACTIVE CARRYING COST SIMULATOR</span>
-            <h4 className="text-sm font-bold text-[#1B281C] mt-0.5">Adjust Your Real Storage & Loan Parameters</h4>
+            <span className="eyebrow text-[#4A6F3E] font-bold">{l.simEyebrow}</span>
+            <h4 className="text-sm font-bold text-[#1B281C] mt-0.5">{l.simTitle}</h4>
           </div>
           <span className="text-xs text-[#51624F]">
-            Farm size: <b>{farm.area}</b> (≈ {uiData?.yieldInfo?.productionQuintals || '33.8 q'})
+            {l.farmSize} <b>{farm.area}</b> (≈ {uiData?.yieldInfo?.productionQuintals || '33.8 q'})
           </span>
         </div>
 
         <div className="calc-grid">
           <div className="calc-control">
-            <label>Warehouse Storage Cost (₹ / quintal / month)</label>
+            <label>{l.storageLbl}</label>
             <div className="calc-slider-wrap">
               <input
                 type="range"
@@ -1228,7 +1324,7 @@ function SellingPage() {
           </div>
 
           <div className="calc-control">
-            <label>Interest / Finance Rate (% per month)</label>
+            <label>{l.interestLbl}</label>
             <div className="calc-slider-wrap">
               <input
                 type="range"
@@ -1247,7 +1343,7 @@ function SellingPage() {
             onClick={handleRecalculate}
             disabled={loading}
           >
-            {loading ? 'Calculating...' : 'Recalculate Strategy'}
+            {loading ? l.calcLoad : l.calcBtn}
           </button>
         </div>
       </div>
@@ -1281,9 +1377,9 @@ function SellingPage() {
               <tbody>
                 {harvestPlan.map((plan, i) => {
                   const monthName = plan.sell_month || plan.month || `Month +${i}`
-                  const expPrice = Number(plan.expected_price ?? plan.projected_price ?? 6080)
+                  const expPrice = Number(plan.expected_price ?? plan.projected_price ?? 0)
                   const netPrice = Number(plan.net_price ?? expPrice)
-                  const basePrice = Number(harvestPlan[0]?.net_price ?? harvestPlan[0]?.expected_price ?? 6080)
+                  const basePrice = Number(harvestPlan[0]?.net_price ?? harvestPlan[0]?.expected_price ?? 0)
                   const storageTotal = Number(storageCost) * i
                   const interestTotal = (expPrice * (Number(interestRate) / 100)) * i
                   const totalCost = storageTotal + interestTotal
@@ -1399,7 +1495,7 @@ function SellingPage() {
               <div>
                 <span className="why-index">02</span>
                 <span className="why-check"><Check size={13} /></span>
-                <span className="why-text">Current Sangli APMC price is at ₹{(marketAnalysis.priceNow || 6080).toLocaleString('en-IN')}/q (17th percentile of last 12 months).</span>
+                <span className="why-text">Current Sangli APMC price is at ₹{(marketAnalysis.priceNow || 0).toLocaleString('en-IN')}/q (17th percentile of last 12 months).</span>
               </div>
               <div>
                 <span className="why-index">03</span>
@@ -1616,7 +1712,7 @@ function DataPage() {
    MAIN APP CONTROLLER
    ========================================================================== */
 function AppContent() {
-  const [language, setLanguage] = useState('en')
+  const { profile, setProfile, uiData, language, setLanguage } = useApp()
   const [authenticated, setAuthenticated] = useState(() => localStorage.getItem('farmerAuth') === 'true')
   const [stage, setStageState] = useState(() => localStorage.getItem('farmerStage') || 'welcome')
   const [page, setPageState] = useState(() => {
@@ -1624,8 +1720,6 @@ function AppContent() {
     return ['dashboard', 'crop', 'yield', 'market', 'selling', 'data'].includes(hash) ? hash : 'dashboard'
   })
   const [navOpen, setNavOpen] = useState(false)
-
-  const { profile, setProfile, uiData } = useApp()
 
   const setStage = (s) => {
     localStorage.setItem('farmerStage', s)

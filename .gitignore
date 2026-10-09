@@ -41,3 +41,8 @@ data/harvest_feedback.csv
 
 # Temporary model files
 model/*.tmp
+
+# Scratch & test output dumps
+scratch/
+out*.json
+
